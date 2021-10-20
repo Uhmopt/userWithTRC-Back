@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "casino level-upgrade",
   "scripts": {
-    "start:dev": "db-migrate up",
+    "start:dev": "db:create level_upgrade & db-migrate up",
     "start": "npm run start:dev node & nodemon ./bin/www",
     "front_start": "node frontend.js"
   },
@@ -15,7 +15,8 @@
   "author": "Lina",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1",
+    "@sendgrid/mail": "^7.5.0",
+    "axios": "^0.23.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "busboy": "^0.3.1",
@@ -39,7 +40,7 @@
     "node-pushnotifications": "^1.2.1",
     "nodemailer": "^6.4.6",
     "onesignal-node": "^3.2.1",
-    "random-number": "0.0.9",
+    "random-number": "^0.0.9",
     "sequelize": "^4.42.0",
     "socket.io": "^2.2.0",
     "sqlstring": "^2.3.1",

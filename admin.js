@@ -3,10 +3,11 @@ var express = require('express')
 var path = require('path')
 var cookieParser = require('cookie-parser')
 var logger = require('morgan')
-const fileUpload = require('./lib/index')
+require('dotenv').config()
 
-// var appRouter = require('./routes/app')
+const fileUpload = require('./lib/index')
 var user = require('./routes/user')
+
 var app = express()
 
 // view engine setup
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ limit: '1000mb', extended: true }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'admin_public')))
 app.use(express.static(__dirname + '/public/uploads'))
-app.use(fileUpload())
+// app.use(fileUpload())
 
 app.use(function (req, res, next) {
   res.setHeader('Access-Control-Allow-Origin', '*')

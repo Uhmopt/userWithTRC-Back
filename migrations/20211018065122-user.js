@@ -3,6 +3,7 @@
 var dbm
 var type
 var seed
+var moment = require('moment')
 
 /**
  * We receive the dbmigrate dependency from dbmigrate initially.
@@ -14,7 +15,18 @@ exports.setup = function (options, seedLink) {
   seed = seedLink
 }
 
+
 exports.up = function (db, callback) {
+
+  db.createTable('tests', {
+    columns: {
+      id: { type: 'int', primaryKey: true, autoIncrement: true },
+      name: 'string'  // shorthand notation
+    },
+    ifNotExists: true
+  }, callback);
+
+
   db.createTable(
     'tb_user',
     {
@@ -28,7 +40,6 @@ exports.up = function (db, callback) {
         type: 'string',
         length: 255,
         notNull: true,
-        require,
       },
       user_password: {
         type: 'string',
@@ -42,11 +53,8 @@ exports.up = function (db, callback) {
         defaultValue: 0,
       },
       user_register_date: {
-        type: 'date',
-        notNull: true,
-      },
-      user_login_time: {
-        type: 'datetime',
+        type: 'int',
+        defaultValue: moment().unix(),
       },
       user_role: {
         type: 'int',
@@ -55,7 +63,27 @@ exports.up = function (db, callback) {
       },
       user_token: {
         type: 'text',
-        require,
+        defaultValue: '',
+      },
+      user_is_verified: {
+        type: 'tinyint',
+        defaultValue: 0,
+        length: 1,
+      },
+      user_expires: {
+        type: 'int',
+        defaultValue: moment().unix() + 600,
+      },
+      user_wallet_address: {
+        type: 'string',
+        notNull: true,
+        defaultValue: '',
+        length: 255,
+      },
+      user_verify_code: {
+        type: 'int',
+        notNull: true,
+        defaultValue: 0,
       },
       user_del: {
         type: 'int',
@@ -112,7 +140,6 @@ exports.up = function (db, callback) {
       level_image: {
         type: 'string',
         length: 255,
-        require,
       },
       user_password: {
         type: 'string',

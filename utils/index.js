@@ -19,11 +19,18 @@ var urlify = function (text) {
 var currentTime = function(){
 	return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 }
+
+var verifyCode = function(min, max){
+    return Math.floor(
+        Math.random() * (max - min + 1) + min
+    )
+}
   
 var exports = {
     createUniqueString: createUniqueString,
     urlify: urlify,
-    currentTime: currentTime
+    currentTime: currentTime,
+    verifyCode: verifyCode
 }
 
 module.exports = exports;
