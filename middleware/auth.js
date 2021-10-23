@@ -4,7 +4,7 @@ var db = require('../utils/database')
 const auth = async (req, res, next) => {
   try {
     const token = req.headers.authorization.replace("Bearer ", "");
-    const decoded = jwt.verify(token, "ehDZcFPV5ZOBGPoVAOAWWAeSmYSCG3nSJkiSJGIfuVBNWpEEAXpaYg8LKapBdisgFTyWkW00cN11rpDr");
+    const decoded = jwt.verify(token, process.env.TOKEN_KEY);
     const user = db.list("SELECT * FROM tb_user where user_id = '" + decoded._id + "'");
     if (!user) {
       throw new Error();

@@ -18,7 +18,7 @@ const InsertOne = async function (tableName = '', insertData = {}) {
   const res = Boolean(tableName && InsertQuery(insertData))
     ? await DB.list('INSERT INTO ' + tableName + InsertQuery(insertData))
     : false
-  return Boolean(res) ? true : false
+  return Boolean(res) ? res : false
 }
 
 const UpdateOne = async function (tableName = '', updateData = {}, where = {}) {
@@ -27,14 +27,14 @@ const UpdateOne = async function (tableName = '', updateData = {}, where = {}) {
         'UPDATE ' + tableName + UpdateQuery(updateData) + WhereQuery(where),
       )
     : false
-  return Boolean(res) ? true : false
+  return Boolean(res) ? res : false
 }
 
 const DeleteOne = async function (tableName = '', where = {}) {
   const res = Boolean(tableName && WhereQuery(where))
     ? await DB.list('DELETE FROM ' + tableName + WhereQuery(where))
     : false
-  return Boolean(res) ? true : false
+  return Boolean(res) ? res : false
 }
 
 const GetByQuery = async function (query = '') {

@@ -5,11 +5,11 @@ const globalModel = require('../model/global')
 const emailLibrary = require('../eamil')
 const utility = require('../utils')
 const auth = require('../middleware/auth')
-const jwt = require('jsonwebtoken')
 const md5 = require('md5')
 
 router.post('/register', async function (req, res) {
-  const { user_password, user_email, user_wallet_address } = req.body
+  const { user_email, user_password, user_wallet_address } = req.body
+  console.log(user_email, user_password, user_wallet_address)
   if (!user_email && user_password) {
     return res.status(400).send({
       msg: 'User password and email required!',
@@ -26,25 +26,14 @@ router.post('/register', async function (req, res) {
     })
   }
 
-  const isRegister = await globalModel.InsertOne('tb_user', {
+  const resRegister = await globalModel.InsertOne('tb_user', {
     user_email: user_email,
     user_password: md5(user_password),
     user_wallet_address: user_wallet_address ? user_wallet_address : '',
   })
 
-  if (isRegister) {
-    const user = await globalModel.GetOne('tb_user', {
-      user_email: user_email,
-      user_password: md5(user_password),
-    })
-    // Create token
-    const token = jwt.sign(
-      { user_id: user.user_id, user_email: user_email },
-      process.env.TOKEN_KEY,
-      {
-        expiresIn: '2h',
-      },
-    )
+  if (resRegister) {
+    const token = utility.createToken(resRegister.insertId, user_email)
     const updateUser = globalModel.UpdateOne('tb_user', { user_token: token })
     return updateUser
       ? res.status(200).send({
@@ -64,7 +53,8 @@ router.post('/register', async function (req, res) {
 })
 
 router.post('/login', async function (req, res) {
-  const { user_password, user_email } = req.body
+  const { user_email, user_password, isRemember } = req.body
+  console.log( user_email, user_password, isRemember );
   if (!user_email && user_password) {
     return res.status(400).send({
       msg: 'User password and email required!',
@@ -78,13 +68,7 @@ router.post('/login', async function (req, res) {
   if (user) {
     console.log(user)
     // Create token
-    const token = jwt.sign(
-      { user_id: user.user_id, user_email: user.user_email },
-      process.env.TOKEN_KEY,
-      {
-        expiresIn: '2h',
-      },
-    )
+    const token = utility.createToken(user.user_id, user.user_email, isRemember)
     const updateUser = globalModel.UpdateOne('tb_user', { user_token: token })
     return updateUser
       ? res.status(200).send({
