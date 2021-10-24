@@ -6,11 +6,12 @@ const emailLibrary = require('../eamil')
 const utility = require('../utils')
 const auth = require('../middleware/auth')
 const md5 = require('md5')
+const transport = require('../lib/sendEmail')
 
 router.post('/register', async function (req, res) {
   const { user_email, user_password, user_wallet_address } = req.body
   console.log(user_email, user_password, user_wallet_address)
-  if (!user_email && user_password) {
+  if (!user_email || !user_password) {
     return res.status(400).send({
       msg: 'User password and email required!',
       result: false,
@@ -53,8 +54,14 @@ router.post('/register', async function (req, res) {
 })
 
 router.post('/login', async function (req, res) {
+  // await transport.sendEmail({
+  //   from: 'from_address@example.com',
+  //   to: 'talentlucky0816@gmail.com',
+  //   subject: 'Test Email Subject',
+  //   html: '<h1>Example HTML Message Body</h1>',
+  // })
   const { user_email, user_password, isRemember } = req.body
-  console.log( user_email, user_password, isRemember );
+  console.log(user_email, user_password, isRemember)
   if (!user_email && user_password) {
     return res.status(400).send({
       msg: 'User password and email required!',
