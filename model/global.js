@@ -72,7 +72,7 @@ const UpdateQuery = function (updateData = {}) {
 const WhereQuery = function (where = {}) {
   let query = ' WHERE '
   for (const [key, value] of Object.entries(where)) {
-    query = query + key + " = '" + value + "' "
+    query = query + key + "'" + value + "' "
     query = query + 'AND '
   }
   query = query.slice(0, -4)

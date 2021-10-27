@@ -5,6 +5,8 @@ const auth = async (req, res, next) => {
   try {
     const token = req.headers.authorization.replace("Bearer ", "");
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
+
+
     const user = db.list("SELECT * FROM tb_user where user_id = '" + decoded._id + "'");
     if (!user) {
       throw new Error();
@@ -13,7 +15,6 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
-    console.log(error);
     res.status(401).send({ error: "Please authenticate." });
   }
 };

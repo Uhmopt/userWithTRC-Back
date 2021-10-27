@@ -15,18 +15,7 @@ exports.setup = function (options, seedLink) {
   seed = seedLink
 }
 
-
 exports.up = function (db, callback) {
-
-  db.createTable('tests', {
-    columns: {
-      id: { type: 'int', primaryKey: true, autoIncrement: true },
-      name: 'string'  // shorthand notation
-    },
-    ifNotExists: true
-  }, callback);
-
-
   db.createTable(
     'tb_user',
     {
@@ -34,7 +23,13 @@ exports.up = function (db, callback) {
         type: 'int',
         length: 255,
         primaryKey: true,
+        notNull: true,
         autoIncrement: true,
+      },
+      user_rid: {
+        type: 'int',
+        length: 255,
+        notNull: true,
       },
       user_email: {
         type: 'string',
@@ -54,6 +49,7 @@ exports.up = function (db, callback) {
       },
       user_register_date: {
         type: 'int',
+        notNull: true,
         defaultValue: moment().unix(),
       },
       user_role: {
@@ -61,17 +57,24 @@ exports.up = function (db, callback) {
         defaultValue: 0,
         notNull: true,
       },
+      user_state: {
+        type: 'int',
+        defaultValue: 0,
+        notNull: true,
+      },
       user_token: {
         type: 'text',
+        notNull: true,
         defaultValue: '',
       },
       user_is_verified: {
-        type: 'tinyint',
+        type: 'int',
         defaultValue: 0,
         length: 1,
       },
       user_expires: {
         type: 'int',
+        notNull: true,
         defaultValue: moment().unix() + 600,
       },
       user_wallet_address: {
@@ -85,6 +88,12 @@ exports.up = function (db, callback) {
         notNull: true,
         defaultValue: 0,
       },
+      user_invited_from: {
+        type: 'string',
+        notNull: true,
+        defaultValue: '',
+        length: 255,
+      },
       user_del: {
         type: 'int',
         length: 1,
@@ -97,33 +106,33 @@ exports.up = function (db, callback) {
       return callback()
     },
   )
-  db.createTable(
-    'tb_revenue',
-    {
-      revenue_id: {
-        type: 'int',
-        length: 255,
-        primaryKey: true,
-        autoIncrement: true,
-      },
-      revenue_user: {
-        type: 'int',
-        length: 255,
-      },
-      revenue_date: {
-        type: 'date',
-      },
-      revenue_amount: {
-        type: 'int',
-        defaultValue: 255,
-        notNull: true,
-      },
-    },
-    function (err) {
-      if (err) return callback(err)
-      return callback()
-    },
-  )
+  // db.createTable(
+  //   'tb_revenue',
+  //   {
+  //     revenue_id: {
+  //       type: 'int',
+  //       length: 255,
+  //       primaryKey: true,
+  //       autoIncrement: true,
+  //     },
+  //     revenue_user: {
+  //       type: 'int',
+  //       length: 255,
+  //     },
+  //     revenue_date: {
+  //       type: 'date',
+  //     },
+  //     revenue_amount: {
+  //       type: 'int',
+  //       defaultValue: 10,
+  //       notNull: true,
+  //     },
+  //   },
+  //   function (err) {
+  //     if (err) return callback(err)
+  //     return callback()
+  //   },
+  // )
   db.createTable(
     'tb_level',
     {
@@ -137,13 +146,12 @@ exports.up = function (db, callback) {
         type: 'int',
         length: 11,
       },
+      level_amount: {
+        type: 'float',
+        length: 11,
+      },
       level_image: {
         type: 'string',
-        length: 255,
-      },
-      user_password: {
-        type: 'string',
-        notNull: true,
         length: 255,
       },
     },
@@ -220,25 +228,50 @@ exports.up = function (db, callback) {
   db.createTable(
     'tb_payment',
     {
-      payment_id: {
+      pay_id: {
         type: 'int',
         primaryKey: true,
         autoIncrement: true,
       },
-      payment_from: {
+      pay_from: {
+        type: 'int',
+        length: 255,
+        notNull: true,
+      },
+      pay_to: {
+        type: 'int',
+        length: 255,
+        notNull: true,
+      },
+      pay_amount: {
+        type: 'float',
+        length: 11,
+        notNull: true,
+        defaultValue: 0,
+      },
+      pay_date: {
+        type: 'datetime',
+        notNull: true,
+        defaultValue: moment().format('YY-MM-DD HH:mm:ss'),
+      },
+      pay_hash: {
         type: 'string',
         length: 255,
         notNull: true,
       },
-      payment_to: {
-        type: 'string',
-        length: 255,
-        notNull: true,
-      },
-      payment_hash: {
-        type: 'string',
-        length: 255,
-        notNull: true,
+    },
+    function (err) {
+      if (err) return callback(err)
+      return callback()
+    },
+  )
+  db.createTable(
+    'tb_setting',
+    {
+      set_id: {
+        type: 'int',
+        primaryKey: true,
+        autoIncrement: true,
       },
     },
     function (err) {

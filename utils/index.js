@@ -20,8 +20,7 @@ var urlify = function (text) {
 var currentTime = function () {
   return new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '')
 }
-
-var verifyCode = function (min, max) {
+var verifyCode = function (min = 100000, max = 999900) {
   return Math.floor(Math.random() * (max - min + 1) + min)
 }
 
@@ -31,7 +30,7 @@ var createToken = function (user_id, user_email, isRemember) {
     { user_id: user_id, user_email: user_email },
     process.env.TOKEN_KEY,
     {
-      expiresIn: isRemember?'0.2h':'0.1h',
+      expiresIn: isRemember?'24h':'14h',
     },
   )
   return token
