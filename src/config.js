@@ -1,25 +1,25 @@
 var config = {
   debug: true,
   mysql: {
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "level_upgrade",
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'level_upgrade',
   },
   port: 5010,
-  server: "localhost",
+  server: 'localhost',
   smtp: {
-    host: "smtp-mail.outlook.com",
+    host: 'smtp-mail.outlook.com',
     port: 587,
     secure: false,
     auth: {
-      user: "auth@auth.com",
-      pass: "Xian",
+      user: 'auth@auth.com',
+      pass: 'Xian',
     },
     tls: {
       rejectUnauthorized: false,
     },
   },
-};
+}
 
-module.exports = config;
+module.exports = config

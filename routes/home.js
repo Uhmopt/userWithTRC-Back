@@ -20,8 +20,8 @@ router.post('/get-levels', auth, async function (req, res) {
 
 router.post('/get-users', auth, async function (req, res) {
   const userList = await globalModel.Getlist('tb_user', {
-    "user_del=": 0,
-    "user_role=": 0,
+    'user_del=': 0,
+    'user_role=': 0,
   })
   return userList
     ? res.status(200).send({
@@ -35,11 +35,11 @@ router.post('/get-users', auth, async function (req, res) {
 router.post('/get-payments', auth, async function (req, res) {
   const { user_id } = req.body
   const query = `SELECT * FROM tb_payment WHERE pay_from = ${user_id} OR pay_to = ${user_id} ORDER BY pay_date`
-  const paymentList = await globalModel.GetByQuery( query )
-  
+  const paymentList = await globalModel.GetByQuery(query)
+
   return paymentList
     ? res.status(200).send({
-        result: paymentList
+        result: paymentList,
       })
     : res.status(500).send({
         result: false,

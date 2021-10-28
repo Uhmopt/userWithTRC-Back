@@ -8,8 +8,8 @@ const md5 = require('md5')
 var moment = require('moment')
 const transport = require('../lib/sendEmail')
 
-const unitId = 2000;
-const expireTime = 2592000;
+const unitId = 2000
+const expireTime = 2592000
 
 router.post('/register', async function (req, res) {
   const { user_email, user_password, user_wallet_address } = req.body
@@ -20,7 +20,7 @@ router.post('/register', async function (req, res) {
     })
   }
   const isExist = await globalModel.GetOne('tb_user', {
-    "user_email=": user_email,
+    'user_email=': user_email,
   })
   if (isExist) {
     return res.status(409).send({
@@ -41,14 +41,20 @@ router.post('/register', async function (req, res) {
     const token = utility.createToken(resRegister.insertId, user_email)
     const updateUser = globalModel.UpdateOne(
       'tb_user',
-      { user_token: token },
-      { "user_email=": user_email },
+      { user_token: token, user_rid: resRegister.insertId + unitId },
+      { 'user_email=': user_email },
     )
     return updateUser
       ? res.status(200).send({
           msg: 'The user has been registerd with us!',
           result: {
             user_email: user_email,
+            user_password: md5(user_password),
+            user_wallet_address: user_wallet_address ? user_wallet_address : '',
+            user_verify_code: verifyCode,
+            user_expires: moment().unix() + expireTime,
+            user_token: token,
+            user_rid: resRegister.insertId + unitId,
           },
         })
       : res.status(500).send({
@@ -77,8 +83,8 @@ router.post('/login', async function (req, res) {
     })
   }
   const user = await globalModel.GetOne('tb_user', {
-    "user_email=": user_email,
-    "user_password=": md5(user_password),
+    'user_email=': user_email,
+    'user_password=': md5(user_password),
   })
   if (user) {
     if (user.user_is_verified === 0) {
@@ -95,13 +101,15 @@ router.post('/login', async function (req, res) {
     const updateUser = globalModel.UpdateOne(
       'tb_user',
       { user_token: token, user_rid: user.user_id + unitId },
-      { "user_email=": user_email },
+      { 'user_email=': user_email },
     )
     return updateUser
       ? res.status(200).send({
           msg: 'Logged in!',
           result: {
-            ...user
+            ...user,
+            user_token: token,
+            user_rid: user.user_id + unitId,
           },
         })
       : res.status(409).send({
@@ -124,7 +132,7 @@ router.post('/forgot-password', async function (req, res) {
     })
   }
   const user = await globalModel.GetOne('tb_user', {
-    "user_email=": user_email,
+    'user_email=': user_email,
   })
   if (!user) {
     return res.status(409).send({
@@ -136,7 +144,7 @@ router.post('/forgot-password', async function (req, res) {
   const updateUser = globalModel.UpdateOne(
     'tb_user',
     { user_verify_code: verify, user_expires: moment().unix() + 600 },
-    { "user_email=": user_email },
+    { 'user_email=': user_email },
   )
   // Email Sent
   return updateUser
@@ -159,8 +167,8 @@ router.post('/verification', async function (req, res) {
     })
   }
   const user = await globalModel.GetOne('tb_user', {
-    "user_verify_code=": user_verify_code,
-    "user_email=": user_email,
+    'user_verify_code=': user_verify_code,
+    'user_email=': user_email,
   })
   if (user.user_expires < moment().unix()) {
     return res.status(500).send({
@@ -177,7 +185,7 @@ router.post('/verification', async function (req, res) {
         user_is_verified: 1,
       },
       {
-        "user_id=": user.user_id,
+        'user_id=': user.user_id,
       },
     )
     return updateUser
@@ -207,21 +215,24 @@ router.post('/reset-password', async function (req, res) {
       result: false,
     })
   }
-
-  const user = globalModel.GetOne('tb_user', {
-    "user_email=": user_email,
-    "user_verify_code=": user_verify_code,
+  const user = await globalModel.GetOne('tb_user', {
+    'user_email=': user_email,
+    'user_verify_code=': user_verify_code,
   })
   if (user) {
+    const token = utility.createToken(user.user_id, user_email)
     const resetPassword = globalModel.UpdateOne(
       'tb_user',
-      { user_password: md5(user_password) },
-      { "user_email=": user_email },
+      { user_password: md5(user_password), user_token: token },
+      { 'user_email=': user_email },
     )
     return resetPassword
       ? res.status(200).send({
           msg: 'Password is reseted!',
-          result: true,
+          result: {
+            ...user,
+            user_token: token,
+          },
         })
       : res.status(409).send({
           msg: 'Something went wrong!',

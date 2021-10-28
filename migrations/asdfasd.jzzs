@@ -94,11 +94,27 @@ exports.up = function (db, callback) {
         defaultValue: '',
         length: 255,
       },
+      user_superior_id: {
+        type: 'int',
+        notNull: true,
+        defaultValue: 0,
+        length: 11,
+      },
       user_del: {
         type: 'int',
         length: 1,
         notNull: true,
         defaultValue: 0,
+      },
+      user_allow_update: {
+        type: 'int',
+        defaultValue: 0,
+        length: 1,
+      },
+      user_allow_login: {
+        type: 'int',
+        defaultValue: 0,
+        length: 1,
       },
     },
     function (err) {
