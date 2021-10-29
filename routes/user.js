@@ -12,7 +12,12 @@ const unitId = 2000
 const expireTime = 2592000
 
 router.post('/register', async function (req, res) {
-  const { user_email, user_password, user_wallet_address } = req.body
+  const {
+    user_email,
+    user_password,
+    user_wallet_address,
+    user_invited_from,
+  } = req.body
   if (!user_email || !user_password) {
     return res.status(400).send({
       msg: 'User password and email required!',
@@ -22,6 +27,12 @@ router.post('/register', async function (req, res) {
   const isExist = await globalModel.GetOne('tb_user', {
     'user_email=': user_email,
   })
+
+  const inviteUser = await globalModel.GetOne('tb_user', {
+      'user_email=': user_invited_from,
+    })
+    console.log( inviteUser, 'sssssssssss' )
+
   if (isExist) {
     return res.status(409).send({
       msg: 'The user Already Exist. Please Login!',
@@ -34,6 +45,8 @@ router.post('/register', async function (req, res) {
     user_password: md5(user_password),
     user_wallet_address: user_wallet_address ? user_wallet_address : '',
     user_verify_code: verifyCode,
+    user_invited_from: user_invited_from,
+    user_superior_id: inviteUser ? inviteUser.user_id : 0,                
     user_expires: moment().unix() + expireTime,
   })
   // Email sent part
