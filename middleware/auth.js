@@ -4,6 +4,7 @@ var db = require('../utils/database')
 const auth = async (req, res, next) => {
   try {
     const token = req.headers.authorization.replace("Bearer ", "");
+    console.log( token, 'here' )
     const decoded = jwt.verify(token, process.env.TOKEN_KEY);
 
 

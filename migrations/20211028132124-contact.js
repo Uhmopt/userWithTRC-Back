@@ -20,34 +20,52 @@ exports.up = function(db, callback) {
     {
       contact_id: {
         type: 'int',
-        length: 255,
+        length: 11,
+        notNull: true,
         primaryKey: true,
         autoIncrement: true,
       },
       contact_user: {
         type: 'int',
         length: 255,
+        defaultValue: 0,
         notNull: true,
       },
       contact_email: {
         type: 'string',
         notNull: true,
+        defaultValue: "",
         length: 255,
       },
-      contact_id: {
-        type: 'string',
+      contact_rid: {
+        type: 'int',
         notNull: true,
-        length: 255,
+        length: 11,
+        defaultValue: "",
       },
       contact_theme: {
         type: 'string',
         notNull: true,
+        defaultValue: "",
         length: 255,
       },
       contact_text: {
         type: 'string',
+        defaultValue: "",
         notNull: true,
-        length: 255,
+        length: 500,
+      },
+      contact_verify_code: {
+        type: 'int',
+        defaultValue: 0,
+        notNull: true,
+        length: 11,
+      },
+      contact_is_verified: {
+        type: 'int',
+        defaultValue: 0,
+        notNull: true,
+        length: 1,
       },
     },
     function (err) {
