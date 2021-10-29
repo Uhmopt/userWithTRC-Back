@@ -69,6 +69,7 @@ exports.up = function (db, callback) {
       },
       user_is_verified: {
         type: 'int',
+        notNull: true,
         defaultValue: 0,
         length: 1,
       },
@@ -108,11 +109,13 @@ exports.up = function (db, callback) {
       },
       user_allow_update: {
         type: 'int',
+        notNull: true,
         defaultValue: 1,
         length: 1,
       },
       user_allow_login: {
         type: 'int',
+        notNull: true,
         defaultValue: 1,
         length: 1,
       },

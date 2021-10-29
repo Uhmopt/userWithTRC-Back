@@ -7,6 +7,9 @@ const md5 = require('md5')
 var moment = require('moment')
 const transport = require('../lib/sendEmail')
 
+const expireTime = 259200
+const unitId = 2000
+
 router.post('/get-levels', auth, async function (req, res) {
   const userLevels = await globalModel.Getlist('tb_level')
   return userLevels
@@ -46,33 +49,46 @@ router.post('/get-payments', auth, async function (req, res) {
       })
 })
 
-// router.post('/update', auth, async function (req, res) {
-//   const { user_email, user_password, user_wallet_address } = req.body
-//   if (!user_email || !user_wallet_address) {
-//     return res.status(400).send({
-//       result: false,
-//     })
-//   }
-//   const updateData = user_password
-//     ? {
-//         user_email: user_email,
-//         user_password: user_password,
-//         user_wallet_address: user_wallet_address,
-//       }
-//     : {
-//         user_email: user_email,
-//         user_wallet_address: user_wallet_address,
-//       }
-//   const updateUser = globalModel.UpdateOne('tb_user', updateData, {
-//     user_email: user_email,
-//   })
-//   return updateUser
-//     ? res.status(200).send({
-//         result: true,
-//       })
-//     : res.status(500).send({
-//         result: false,
-//       })
-// })
+router.post('/update', auth, async function (req, res) {
+  const { user_email, user_password, user_wallet_address } = req.body
+  if (!user_email || !user_wallet_address) {
+    return res.status(400).send({
+      result: false,
+    })
+  }
+  const verifyCode = utility.verifyCode()
+  const updateData = user_password
+    ? {
+        user_email: user_email,
+        user_password: user_password,
+        user_wallet_address: user_wallet_address,
+        user_is_verified: 0,
+        user_expires: moment().unix() + expireTime,
+        user_verify_code: verifyCode,
+      }
+    : {
+        user_email: user_email,
+        user_wallet_address: user_wallet_address,
+        user_is_verified: 0,
+        user_expires: moment().unix() + expireTime,
+        user_verify_code: verifyCode,
+      }
+  // Email sent part
+  const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
+    "user_email=": user_email,
+  })
+  const user = await globalModel.GetOne('tb_user', {
+    "user_email=": user_email,
+  })
+  return updateUser
+    ? res.status(200).send({
+        result: {
+          ...user
+        },
+      })
+    : res.status(500).send({
+        result: false,
+      })
+})
 
 module.exports = router

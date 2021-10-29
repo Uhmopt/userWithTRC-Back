@@ -98,7 +98,7 @@ router.post('/login', async function (req, res) {
     }
     // Create token
     const token = utility.createToken(user.user_id, user.user_email, isRemember)
-    const updateUser = globalModel.UpdateOne(
+    const updateUser = await globalModel.UpdateOne(
       'tb_user',
       { user_token: token, user_rid: user.user_id + unitId },
       { 'user_email=': user_email },
@@ -141,7 +141,7 @@ router.post('/forgot-password', async function (req, res) {
     })
   }
   const verify = utility.verifyCode()
-  const updateUser = globalModel.UpdateOne(
+  const updateUser = await globalModel.UpdateOne(
     'tb_user',
     { user_verify_code: verify, user_expires: moment().unix() + 600 },
     { 'user_email=': user_email },
@@ -178,7 +178,7 @@ router.post('/verification', async function (req, res) {
   }
   if (Boolean(user)) {
     const token = utility.createToken(user.user_id, user.user_email)
-    const updateUser = globalModel.UpdateOne(
+    const updateUser = await globalModel.UpdateOne(
       'tb_user',
       {
         user_token: token,
@@ -192,6 +192,7 @@ router.post('/verification', async function (req, res) {
       ? res.status(200).send({
           msg: 'Your email verified successfully',
           result: {
+            ...user,
             user_verify_code: user_verify_code,
             user_email: user_email,
           },
@@ -221,7 +222,7 @@ router.post('/reset-password', async function (req, res) {
   })
   if (user) {
     const token = utility.createToken(user.user_id, user_email)
-    const resetPassword = globalModel.UpdateOne(
+    const resetPassword = await globalModel.UpdateOne(
       'tb_user',
       { user_password: md5(user_password), user_token: token },
       { 'user_email=': user_email },
@@ -244,34 +245,5 @@ router.post('/reset-password', async function (req, res) {
     result: false,
   })
 })
-
-// router.post('/update', auth, async function (req, res) {
-//   const { user_email, user_password, user_wallet_address } = req.body
-//   if (!user_email || !user_wallet_address) {
-//     return res.status(400).send({
-//       result: false,
-//     })
-//   }
-//   const updateData = user_password
-//     ? {
-//         user_email: user_email,
-//         user_password: user_password,
-//         user_wallet_address: user_wallet_address,
-//       }
-//     : {
-//         user_email: user_email,
-//         user_wallet_address: user_wallet_address,
-//       }
-//   const updateUser = globalModel.UpdateOne('tb_user', updateData, {
-//     "user_email=": user_email,
-//   })
-//   return updateUser
-//     ? res.status(200).send({
-//         result: true,
-//       })
-//     : res.status(500).send({
-//         result: false,
-//       })
-// })
 
 module.exports = router
