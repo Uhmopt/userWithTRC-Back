@@ -25,6 +25,7 @@ router.post('/get-users', auth, async function (req, res) {
   const userList = await globalModel.Getlist('tb_user', {
     'user_del=': 0,
     'user_role=': 0,
+    'user_is_verified<>': 0,
   })
   return userList
     ? res.status(200).send({

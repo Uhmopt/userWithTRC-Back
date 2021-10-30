@@ -1,11 +1,11 @@
 {
-    "dev": {
-      "driver": "mysql",
-      "multipleStatements": true,
-      "host": "localhost",
-      "port": "3306",
-      "user": "root",
-      "password": "",
-      "database": "level_upgrade"
-    }
+  "dev": {
+    "driver": "mysql",
+    "multipleStatements": true,
+    "host": "localhost",
+    "port": "3306",
+    "user": "root",
+    "password": "",
+    "database": "level_upgrade"
   }
+}

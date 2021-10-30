@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "casino level-upgrade",
   "scripts": {
-    "migrate": "db:create level_upgrade & db-migrate up",
+    "migrate": "db-migrate db:create level_upgrade & db-migrate up",
     "start": "npm run migrate node & nodemon ./bin/www",
     "front_start": "node frontend.js"
   },

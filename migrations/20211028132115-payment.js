@@ -15,7 +15,7 @@ exports.setup = function(options, seedLink) {
   seed = seedLink;
 };
 
-exports.up = function(db, callback) {
+exports.up = async function(db, callback) {
   db.createTable(
     'tb_payment',
     {
@@ -58,7 +58,7 @@ exports.up = function(db, callback) {
   )
 };
 
-exports.down = function(db) {
+exports.down = async function(db) {
   db.dropTable('tb_payment', callback)
 };
 

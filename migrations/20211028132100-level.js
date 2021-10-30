@@ -14,27 +14,30 @@ exports.setup = function(options, seedLink) {
   seed = seedLink;
 };
 
-exports.up = function(db, callback) {
+exports.up = async function(db, callback) {
   db.createTable(
     'tb_level',
     {
       level_id: {
         type: 'int',
-        length: 255,
         primaryKey: true,
         autoIncrement: true,
       },
       level_degree: {
         type: 'int',
-        length: 11,
+        length: 255,
+        notNull: true,
+      },
+      level_user: {
+        type: 'int',
+        length: 255,
+        notNull: true,
       },
       level_amount: {
         type: 'float',
         length: 11,
-      },
-      level_image: {
-        type: 'string',
-        length: 255,
+        notNull: true,
+        defaultValue: 0,
       },
     },
     function (err) {
@@ -44,7 +47,7 @@ exports.up = function(db, callback) {
   )
 };
 
-exports.down = function(db) {
+exports.down = async function(db) {
   db.dropTable('tb_level', callback)
 };
 

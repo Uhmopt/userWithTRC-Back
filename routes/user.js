@@ -31,7 +31,6 @@ router.post('/register', async function (req, res) {
   const inviteUser = await globalModel.GetOne('tb_user', {
       'user_email=': user_invited_from,
     })
-    console.log( inviteUser, 'sssssssssss' )
 
   if (isExist) {
     return res.status(409).send({
