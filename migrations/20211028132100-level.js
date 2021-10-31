@@ -15,7 +15,7 @@ exports.setup = function(options, seedLink) {
 };
 
 exports.up = async function(db, callback) {
-  db.createTable(
+  await db.createTable(
     'tb_level',
     {
       level_id: {
@@ -34,7 +34,7 @@ exports.up = async function(db, callback) {
         notNull: true,
       },
       level_amount: {
-        type: 'float',
+        type: 'int',
         length: 11,
         notNull: true,
         defaultValue: 0,
@@ -45,6 +45,10 @@ exports.up = async function(db, callback) {
       return callback()
     },
   )
+  for( var i=0; i < 17; i++ ){
+    db.insert('tb_level', ['level_degree', 'level_user', 'level_amount'], [i, 0, 10], callback)
+  }
+  
 };
 
 exports.down = async function(db) {

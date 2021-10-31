@@ -26,24 +26,34 @@ exports.up = async function(db, callback) {
       },
       pay_from: {
         type: 'int',
-        length: 255,
+        length: 11,
         notNull: true,
       },
       pay_to: {
-        type: 'int',
+        type: '11',
         length: 255,
         notNull: true,
       },
+      pay_result: {
+        type: 'string',
+        length: 50,
+        notNull: true,
+      },
+      pay_confirmed: {
+        type: 'int',
+        length: 1,
+        defaultValue: 0,
+        notNull: true,
+      },
       pay_amount: {
-        type: 'float',
-        length: 11,
+        type: 'int',
+        length: 20,
         notNull: true,
         defaultValue: 0,
       },
-      pay_date: {
-        type: 'datetime',
+      pay_time: {
+        type: 'timestamp',
         notNull: true,
-        defaultValue: moment().format('YY-MM-DD HH:mm:ss'),
       },
       pay_hash: {
         type: 'string',

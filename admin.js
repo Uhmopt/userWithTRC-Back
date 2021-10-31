@@ -8,6 +8,7 @@ require('dotenv').config()
 
 var user = require('./routes/user')
 var home = require('./routes/home')
+var payment = require('./routes/payment')
 
 var app = express()
 app.use(cors())
@@ -39,6 +40,7 @@ app.use(function (req, res, next) {
 
 app.use('/app/user', user)
 app.use('/app/home', home)
+app.use('/app/payment', payment)
 
 app.use(function (req, res, next) {
   next(createError(404))

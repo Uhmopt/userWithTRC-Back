@@ -15,21 +15,22 @@ exports.setup = function (options, seedLink) {
 }
 
 exports.up = async function (db, callback) {
-  db.createTable(
+  await db.createTable(
     'tb_setting',
     {
       set_id: {
         type: 'int',
         primaryKey: true,
+        notNull: true,
         autoIncrement: true,
       },
       set_item_name: {
-        type: 'int',
+        type: 'string',
         length: 255,
         notNull: true,
       },
       set_item_value: {
-        type: 'int',
+        type: 'string',
         length: 255,
         notNull: true,
       },
@@ -39,14 +40,10 @@ exports.up = async function (db, callback) {
       return callback()
     },
   )
-
+  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['specified_user_id', '0'], callback)
+  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['register_allowed', '1'], callback)
+  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['admin_email', 'user_upgrade@gmail.com'], callback)
 }
-
-// function insertDefaultValue(db) {
-//   db.insert(tb_setting, [set_item_name, set_item_value], ['specified_user_id', '0'], callback)
-//   db.insert(tb_setting, [set_item_name, set_item_value], ['register_allowed', '1'], callback)
-//   db.insert(tb_setting, [set_item_name, set_item_value], ['contact_email', 'user_upgrade@gmail.com'], callback)
-// }
 
 exports.down = async function (db, callback) {
   await db.dropTable('tb_setting', callback)

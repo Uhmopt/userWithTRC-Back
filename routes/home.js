@@ -38,7 +38,7 @@ router.post('/get-users', auth, async function (req, res) {
 
 router.post('/get-payments', auth, async function (req, res) {
   const { user_id } = req.body
-  const query = `SELECT * FROM tb_payment WHERE pay_from = ${user_id} OR pay_to = ${user_id} ORDER BY pay_date`
+  const query = `SELECT * FROM tb_payment WHERE pay_from = ${user_id} OR pay_to = ${user_id} ORDER BY pay_time`
   const paymentList = await globalModel.GetByQuery(query)
 
   return paymentList
@@ -145,7 +145,16 @@ router.post('/contact-verification', auth, async function (req, res) {
         'contact_id=': contact_id,
       },
     )
+    const setting = await globalModel.GetOne('tb_setting', {
+      'set_item_name=': 'admin_email',
+    })
     // Email Sent Part///////////////////////////
+    await transport.sendEmail({
+      from: contact.contact_email,
+      to: setting.set_item_value,
+      subject: contact.contact_theme,
+      html: `<h4>ID:${contact.contact_rid}</h4><br /><h4>${contact.contact_text}</h4>`,
+    })
     return contact
       ? res.status(200).send({
           msg: 'Your email sent successfully',
@@ -158,6 +167,72 @@ router.post('/contact-verification', auth, async function (req, res) {
   }
   res.status(409).send({
     msg: 'The verification code is not matched!',
+    result: false,
+  })
+})
+
+router.post('/submit-hash', auth, async function (req, res) {
+  const {
+    hash,
+    confirmed,
+    result,
+    amount,
+    from,
+    to,
+    symbol,
+    timestamp,
+  } = req.body
+  if (!hash || !confirmed || !result || !amount || !from || !to) {
+    return res.status(400).send({
+      result: false,
+    })
+  }
+
+  const isUsed = await globalModel.GetOne('tb_payment', {
+    'pay_hash=': hash,
+  })
+
+  if (isUsed) {
+    return res.status(409).send({
+      msg: 'This hash is used already!',
+      result: false,
+    })
+  }
+  const fromUser = await globalModel.GetOne('tb_user', {
+    'user_wallet_address=': from,
+  })
+
+  const toUser = await globalModel.GetOne('tb_user', {
+    'user_wallet_address=': to,
+  })
+  const insertPayment = await globalModel.InsertOne('tb_payment', {
+    pay_hash: hash,
+    pay_from: fromUser.user_id,
+    pay_to: toUser.user_id,
+    pay_result: result,
+    pay_confirmed: confirmed ? 1 : 0,
+    pay_amount: amount,
+    pay_time: timestamp,
+  })
+  if (
+    insertPayment &&
+    confirmed &&
+    result === 'SUCCESS' &&
+    symbol === 'USDT' &&
+    amount > 0
+  ) {
+    const updateData = {
+      user_level: Number(fromUser.user_level) + 1,
+      user_superior_id: toUser.user_superior_id,
+    }
+    const unpdateUser = await globalModel.UpdateOne('tb_user', updateData, {
+      'user_id=': fromUser.user_id,
+    })
+    return res.status(200).send({
+      result: true,
+    })
+  }
+  return res.status(409).send({
     result: false,
   })
 })

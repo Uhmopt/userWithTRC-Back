@@ -49,6 +49,16 @@ router.post('/register', async function (req, res) {
     user_expires: moment().unix() + expireTime,
   })
   // Email sent part
+  const setting = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'admin_email',
+  })
+  // Email Sent
+  await transport.sendEmail({
+    from: setting.set_item_value,
+    to: user_email,
+    subject: 'Please verify your email for Sign up',
+    html: `<h1>${verify}</h1>`,
+  })
   if (Boolean(resRegister)) {
     const token = utility.createToken(resRegister.insertId, user_email)
     const updateUser = globalModel.UpdateOne(
@@ -81,12 +91,7 @@ router.post('/register', async function (req, res) {
 })
 
 router.post('/login', async function (req, res) {
-  // await transport.sendEmail({
-  //   from: 'from_address@example.com',
-  //   to: 'talentlucky0816@gmail.com',
-  //   subject: 'Test Email Subject',
-  //   html: '<h1>Example HTML Message Body</h1>',
-  // })
+
   const { user_email, user_password, isRemember } = req.body
   if (!user_email || !user_password) {
     return res.status(400).send({
@@ -158,7 +163,16 @@ router.post('/forgot-password', async function (req, res) {
     { user_verify_code: verify, user_expires: moment().unix() + 600 },
     { 'user_email=': user_email },
   )
+  const setting = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'admin_email',
+  })
   // Email Sent
+  await transport.sendEmail({
+    from: setting.set_item_value,
+    to: user_email,
+    subject: 'Please verify your email for reset password',
+    html: `<h1>${verify}</h1>`,
+  })
   return updateUser
     ? res.status(200).send({
         msg: 'Email is sent',
