@@ -30,7 +30,7 @@ exports.up = async function(db, callback) {
         notNull: true,
       },
       pay_to: {
-        type: '11',
+        type: 'int',
         length: 255,
         notNull: true,
       },

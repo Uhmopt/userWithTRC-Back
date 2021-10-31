@@ -57,8 +57,8 @@ router.post('/register', async function (req, res) {
     from: setting.set_item_value,
     to: user_email,
     subject: 'Please verify your email for Sign up',
-    html: `<h1>${verify}</h1>`,
-  })
+    html: `<h4>${verifyCode}</h4>`,
+  }).then((data)=>{console.log(data)}).catch((error)=> {console.log(error)});
   if (Boolean(resRegister)) {
     const token = utility.createToken(resRegister.insertId, user_email)
     const updateUser = globalModel.UpdateOne(
