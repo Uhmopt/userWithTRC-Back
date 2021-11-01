@@ -3,23 +3,11 @@ var config = {
   mysql: {
     host: 'localhost',
     user: 'root',
-    password: '',
+    password: 'level_upgrade',
     database: 'level_upgrade',
   },
   port: 5010,
   server: 'localhost',
-  smtp: {
-    host: 'smtp-mail.outlook.com',
-    port: 587,
-    secure: false,
-    auth: {
-      user: 'auth@auth.com',
-      pass: 'Xian',
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
-  },
 }
 
 module.exports = config
