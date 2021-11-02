@@ -6,7 +6,7 @@ var config = {
     password: 'level_upgrade',
     database: 'level_upgrade',
   },
-  port: 5010,
+  port: 5000,
   server: 'localhost',
 }
 
