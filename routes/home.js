@@ -8,7 +8,19 @@ var moment = require('moment')
 const transport = require('../lib/sendEmail')
 
 const expireTime = 259200
-const unitId = 2000
+
+router.post('/get-user', auth, async function (req, res) {
+  const { user_id } = req.body
+  console.log( user_id );
+  const user = await globalModel.GetOne('tb_user', { 'user_id=': user_id })
+  return user
+    ? res.status(200).send({
+        result: user,
+      })
+    : res.status(500).send({
+        result: false,
+      })
+})
 
 router.post('/get-levels', auth, async function (req, res) {
   const userLevels = await globalModel.Getlist('tb_level')

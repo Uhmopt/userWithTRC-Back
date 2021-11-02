@@ -61,21 +61,16 @@ router.post('/submit-hash', auth, async function (req, res) {
       user_level: Number(fromUser.user_level) + 1,
       user_superior_id: toUser.user_superior_id,
     }
-    const unpdateUser = await globalModel.UpdateOne('tb_user', updateData, {
+    const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
       'user_id=': fromUser.user_id,
     })
-    return unpdateUser
-      ? res.status(200).send({
-          msg: 'User upgraded successfully!',
-          result: {
-            ...fromUser,
-            ...updateData,
-          },
-        })
-      : res.status(409).send({
-          msg: 'User upgraded failed!',
-          result: false,
-        })
+    return res.status(200).send({
+      msg: 'User upgraded successfully!',
+      result: {
+        ...fromUser,
+        ...updateData,
+      },
+    })
   }
   return res.status(409).send({
     msg:
@@ -85,35 +80,27 @@ router.post('/submit-hash', auth, async function (req, res) {
 })
 
 router.post('/get-amount-address', auth, async function (req, res) {
-  const { user_id } = req.body
-  if (!user_id) {
-    return res.status(400).send({
-      result: false,
-    })
-  }
+  const { user_level, user_superior_id } = req.body
 
-  const user = await globalModel.GetOne('tb_user', {
-    'user_id=': user_id,
-  })
   const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': specified_user_id,
+    'set_item_name=': 'specified_user_id',
   })
   const levelByDegree = await globalModel.GetOne('tb_level', {
-    'level_degree=': user.user_level,
+    'level_degree=': user_level,
   })
 
   let superior = await globalModel.GetOne('tb_user', {
-    'user_id=': user.user_superior_id,
+    'user_id=': user_superior_id,
   })
-  // Note: If there is no superior id 
+  // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
-  if (user.user_superior_id === 0 || user.user_level >= superior.user_level) {
+  if (user_superior_id === 0 || user_level >= superior.user_level) {
     superior = await globalModel.GetOne('tb_user', {
       'user_id=': setting.set_item_value,
     })
   }
-  
+
   // if (user.user_superior_id === 0 || user.user_level >= superior.user_level) {
   //   superior = await globalModel.GetOne('tb_user', {
   //     'user_id=': levelByDegree.level_user,
