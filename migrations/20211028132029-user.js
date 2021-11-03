@@ -51,7 +51,7 @@ exports.up = async function (db, callback) {
         defaultValue: 0,
       },
       user_register_date: {
-        type: 'int',
+        type: 'timestamp',
         notNull: true,
         defaultValue: moment().unix(),
       },
@@ -77,7 +77,7 @@ exports.up = async function (db, callback) {
         length: 1,
       },
       user_expires: {
-        type: 'int',
+        type: 'timestamp',
         notNull: true,
         defaultValue: moment().unix() + 600,
       },

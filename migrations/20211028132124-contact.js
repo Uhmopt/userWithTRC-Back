@@ -1,20 +1,20 @@
-'use strict';
+'use strict'
 
-var dbm;
-var type;
-var seed;
+var dbm
+var type
+var seed
 
 /**
-  * We receive the dbmigrate dependency from dbmigrate initially.
-  * This enables us to not have to rely on NODE_PATH.
-  */
-exports.setup = function(options, seedLink) {
-  dbm = options.dbmigrate;
-  type = dbm.dataType;
-  seed = seedLink;
-};
+ * We receive the dbmigrate dependency from dbmigrate initially.
+ * This enables us to not have to rely on NODE_PATH.
+ */
+exports.setup = function (options, seedLink) {
+  dbm = options.dbmigrate
+  type = dbm.dataType
+  seed = seedLink
+}
 
-exports.up = async function(db, callback) {
+exports.up = async function (db, callback) {
   db.createTable(
     'tb_contact',
     {
@@ -27,11 +27,13 @@ exports.up = async function(db, callback) {
         type: 'int',
         length: 255,
         notNull: true,
+        defaultValue: 0,
       },
       contact_rid: {
         type: 'int',
         length: 255,
         notNull: true,
+        defaultValue: 2000,
       },
       contact_verify_code: {
         type: 'int',
@@ -49,16 +51,19 @@ exports.up = async function(db, callback) {
         type: 'string',
         length: 255,
         notNull: true,
-      },      
+        defaultValue: '',
+      },
       contact_text: {
         type: 'string',
-        length: 255,
+        length: 500,
         notNull: true,
+        defaultValue: '',
       },
       contact_email: {
         type: 'string',
         length: 255,
         notNull: true,
+        defaultValue: '',
       },
     },
     function (err) {
@@ -66,12 +71,12 @@ exports.up = async function(db, callback) {
       return callback()
     },
   )
-};
+}
 
-exports.down = async function(db) {
+exports.down = async function (db) {
   db.dropTable('tb_contact', callback)
-};
+}
 
 exports._meta = {
-  "version": 1
-};
+  version: 1,
+}
