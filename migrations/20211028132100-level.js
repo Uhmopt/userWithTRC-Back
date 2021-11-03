@@ -27,11 +27,13 @@ exports.up = async function(db, callback) {
         type: 'int',
         length: 255,
         notNull: true,
+        defaultValue: 0
       },
       level_user: {
         type: 'int',
         length: 255,
         notNull: true,
+        defaultValue: 1
       },
       level_amount: {
         type: 'int',

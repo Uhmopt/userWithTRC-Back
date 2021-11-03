@@ -28,11 +28,13 @@ exports.up = async function (db, callback) {
         type: 'string',
         length: 255,
         notNull: true,
+        defaultValue: ''
       },
       set_item_value: {
         type: 'string',
         length: 255,
         notNull: true,
+        defaultValue: ''
       },
     },
     function (err) {

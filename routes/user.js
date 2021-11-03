@@ -4,9 +4,10 @@ const userModel = require('../model/user')
 const globalModel = require('../model/global')
 const utility = require('../utils')
 const auth = require('../middleware/auth')
+const nodemailer = require("nodemailer");
 const md5 = require('md5')
 var moment = require('moment')
-const transport = require('../lib/sendEmail')
+const sendMail = require('../lib/sendMail')
 
 const unitId = 2000
 const expireTime = 2592000
@@ -53,12 +54,8 @@ router.post('/register', async function (req, res) {
     'set_item_name=': 'admin_email',
   })
   // Email Sent
-  await transport.sendEmail({
-    from: setting.set_item_value,
-    to: user_email,
-    subject: 'Please verify your email for Sign up',
-    html: `<h4>${verifyCode}</h4>`,
-  }).then((data)=>{console.log(data)}).catch((error)=> {console.log(error)});
+  const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for Sign up', `<h4>${verifyCode}</h4>`)
+
   if (Boolean(resRegister)) {
     const token = utility.createToken(resRegister.insertId, user_email)
     const updateUser = globalModel.UpdateOne(
@@ -167,12 +164,7 @@ router.post('/forgot-password', async function (req, res) {
     'set_item_name=': 'admin_email',
   })
   // Email Sent
-  await transport.sendEmail({
-    from: setting.set_item_value,
-    to: user_email,
-    subject: 'Please verify your email for reset password',
-    html: `<h1>${verify}</h1>`,
-  })
+  const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for reset password', `<h4>${verify}</h4>`)
   return updateUser
     ? res.status(200).send({
         msg: 'Email is sent',
@@ -202,6 +194,7 @@ router.post('/verification', async function (req, res) {
       result: false,
     })
   }
+  
   if (Boolean(user)) {
     const token = utility.createToken(user.user_id, user.user_email)
     const updateUser = await globalModel.UpdateOne(

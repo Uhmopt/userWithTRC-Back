@@ -30,16 +30,19 @@ exports.up = async function (db, callback) {
         type: 'int',
         length: 255,
         notNull: true,
+        defaultValue: '2000'
       },
       user_email: {
         type: 'string',
         length: 255,
         notNull: true,
+        defaultValue: ''
       },
       user_password: {
         type: 'string',
         notNull: true,
         length: 255,
+        defaultValue: ''
       },
       user_level: {
         type: 'int',

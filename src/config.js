@@ -3,7 +3,7 @@ var config = {
   mysql: {
     host: 'localhost',
     user: 'root',
-    password: 'level_upgrade',
+    password: '',
     database: 'level_upgrade',
   },
   port: 5000,

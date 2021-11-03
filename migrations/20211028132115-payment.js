@@ -27,17 +27,16 @@ exports.up = async function(db, callback) {
       pay_from: {
         type: 'int',
         length: 11,
-        notNull: true,
       },
       pay_to: {
         type: 'int',
         length: 255,
-        notNull: true,
       },
       pay_result: {
         type: 'string',
         length: 50,
         notNull: true,
+        defaultValue: ''
       },
       pay_confirmed: {
         type: 'int',

@@ -5,7 +5,7 @@ const utility = require('../utils')
 const auth = require('../middleware/auth')
 const md5 = require('md5')
 var moment = require('moment')
-const transport = require('../lib/sendEmail')
+
 
 const expireTime = 259200
 
@@ -161,12 +161,7 @@ router.post('/contact-verification', auth, async function (req, res) {
       'set_item_name=': 'admin_email',
     })
     // Email Sent Part///////////////////////////
-    await transport.sendEmail({
-      from: contact.contact_email,
-      to: setting.set_item_value,
-      subject: contact.contact_theme,
-      html: `<h4>ID:${contact.contact_rid}</h4><br /><h4>${contact.contact_text}</h4>`,
-    })
+    const isSent = await sendMail( contact.contact_email, setting.set_item_value, contact.contact_theme, `<h4>ID:${contact.contact_rid}</h4><br /><h4>${contact.contact_text}</h4>`)
     return contact
       ? res.status(200).send({
           msg: 'Your email sent successfully',
