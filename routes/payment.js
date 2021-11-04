@@ -2,6 +2,7 @@ const express = require('express')
 const router = express.Router()
 const globalModel = require('../model/global')
 const auth = require('../middleware/auth')
+var moment = require('moment')
 
 router.post('/submit-hash', auth, async function (req, res) {
   const {
@@ -48,7 +49,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     pay_result: result,
     pay_confirmed: confirmed ? 1 : 0,
     pay_amount: amount,
-    pay_time: timestamp,
+    pay_time: moment().format(),
   })
   if (
     insertPayment &&
@@ -64,8 +65,9 @@ router.post('/submit-hash', auth, async function (req, res) {
     const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
       'user_id=': fromUser.user_id,
     })
+    console.log( 'THIS IS THE PAYMENT' )
     return res.status(200).send({
-      msg: 'User upgraded successfully!',
+      msg: 'User is upgrade sucessfullly!',
       result: {
         ...fromUser,
         ...updateData,

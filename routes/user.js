@@ -47,7 +47,7 @@ router.post('/register', async function (req, res) {
     user_verify_code: verifyCode,
     user_invited_from: user_invited_from,
     user_superior_id: inviteUser ? inviteUser.user_id : 0,                
-    user_expires: moment().unix() + expireTime,
+    user_expires: moment( (moment().unix() + expireTime)*1000 ).format() ,
   })
   // Email sent part
   const setting = await globalModel.GetOne('tb_setting', {
@@ -55,6 +55,7 @@ router.post('/register', async function (req, res) {
   })
   // Email Sent
   const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for Sign up', `<h4>${verifyCode}</h4>`)
+  console.log( isSent, 'Email Sent' )
 
   if (Boolean(resRegister)) {
     const token = utility.createToken(resRegister.insertId, user_email)
@@ -71,7 +72,7 @@ router.post('/register', async function (req, res) {
             user_password: md5(user_password),
             user_wallet_address: user_wallet_address ? user_wallet_address : '',
             user_verify_code: verifyCode,
-            user_expires: moment().unix() + expireTime,
+            user_expires: moment( (moment().unix() + expireTime)*1000 ).format() ,
             user_token: token,
             user_rid: resRegister.insertId + unitId,
           },
@@ -157,7 +158,7 @@ router.post('/forgot-password', async function (req, res) {
   const verify = utility.verifyCode()
   const updateUser = await globalModel.UpdateOne(
     'tb_user',
-    { user_verify_code: verify, user_expires: moment().unix() + 600 },
+    { user_verify_code: verify, user_expires: moment( (moment().unix() + 600)*1000 ).format()  },
     { 'user_email=': user_email },
   )
   const setting = await globalModel.GetOne('tb_setting', {
@@ -165,6 +166,7 @@ router.post('/forgot-password', async function (req, res) {
   })
   // Email Sent
   const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for reset password', `<h4>${verify}</h4>`)
+  console.log( isSent, 'Email Sent' )
   return updateUser
     ? res.status(200).send({
         msg: 'Email is sent',
@@ -178,6 +180,7 @@ router.post('/forgot-password', async function (req, res) {
 
 router.post('/verification', async function (req, res) {
   const { user_verify_code, user_email } = req.body
+  console.log( user_verify_code, user_email )
   if (!user_verify_code) {
     return res.status(400).send({
       msg: 'Verification code is required!',
@@ -188,7 +191,7 @@ router.post('/verification', async function (req, res) {
     'user_verify_code=': user_verify_code,
     'user_email=': user_email,
   })
-  if (user.user_expires < moment().unix()) {
+  if (moment(user.user_expires).unix() < moment().unix()) {
     return res.status(500).send({
       msg: 'Expire time is over. Please try again!',
       result: false,
@@ -207,12 +210,19 @@ router.post('/verification', async function (req, res) {
         'user_id=': user.user_id,
       },
     )
+    console.log({
+      ...user,
+      user_verify_code: user_verify_code,
+      user_is_verified: 1,
+      user_email: user_email,
+    })
     return updateUser
       ? res.status(200).send({
           msg: 'Your email verified successfully',
           result: {
             ...user,
             user_verify_code: user_verify_code,
+            user_is_verified: 1,
             user_email: user_email,
           },
         })

@@ -4,6 +4,7 @@ const globalModel = require('../model/global')
 const utility = require('../utils')
 const auth = require('../middleware/auth')
 const md5 = require('md5')
+const sendMail = require('../lib/sendMail')
 var moment = require('moment')
 
 const expireTime = 259200
@@ -122,6 +123,7 @@ router.post('/contact', auth, async function (req, res) {
   }
 
   // Email Sent Part///////////////////////////
+  const isSent = await sendMail( setting.set_item_value, email, 'Please verify your email for contact us', `<h4>${verifyCode}</h4>`)
   const insertState = await globalModel.InsertOne('tb_contact', contactData)
   return Boolean(insertState)
     ? res.status(200).send({
