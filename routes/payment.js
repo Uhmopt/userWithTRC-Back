@@ -14,6 +14,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     to,
     symbol,
     timestamp,
+    from_user_id
   } = req.body
   if (!hash || !confirmed || !result || !amount || !from || !to) {
     return res.status(400).send({
@@ -32,7 +33,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     })
   }
   const fromUser = await globalModel.GetOne('tb_user', {
-    'user_wallet_address=': from,
+    'user_id=': from_user_id,
   })
 
   const toUser = await globalModel.GetOne('tb_user', {
@@ -56,7 +57,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     confirmed &&
     result === 'SUCCESS' &&
     symbol === 'USDT' &&
-    amount > level.level_amount + fromUser.user_rid
+    amount === Number(level.level_amount) + Number(fromUser.user_rid)
   ) {
     const updateData = {
       user_level: Number(fromUser.user_level) + 1,
@@ -65,7 +66,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
       'user_id=': fromUser.user_id,
     })
-    console.log( 'THIS IS THE PAYMENT' )
+    console.log('THIS IS THE PAYMENT')
     return res.status(200).send({
       msg: 'User is upgrade sucessfullly!',
       result: {
@@ -76,7 +77,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   }
   return res.status(409).send({
     msg:
-      'User-level upgrade failed. Please confirm your USDT transfer is over neccesary amount and a success.',
+      'User-level upgrade failed. Please confirm your USDT transfer.',
     result: false,
   })
 })

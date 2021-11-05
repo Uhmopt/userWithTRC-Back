@@ -121,9 +121,17 @@ router.post('/contact', auth, async function (req, res) {
     contact_verify_code: verifyCode,
     contact_is_verified: 0,
   }
-
+  const setting = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'admin_email',
+  })
   // Email Sent Part///////////////////////////
-  const isSent = await sendMail( setting.set_item_value, email, 'Please verify your email for contact us', `<h4>${verifyCode}</h4>`)
+  const isSent = await sendMail(
+    setting.set_item_value,
+    email,
+    'Please verify your email for sending contact',
+    `<h4>${verifyCode}</h4>`,
+  )
+  console.log(isSent)
   const insertState = await globalModel.InsertOne('tb_contact', contactData)
   return Boolean(insertState)
     ? res.status(200).send({
@@ -189,21 +197,19 @@ router.post('/submit-hash', auth, async function (req, res) {
     confirmed,
     result,
     amount,
-    from,
+    from_id,
     to,
     symbol,
     timestamp,
   } = req.body
-  if (!hash || !confirmed || !result || !amount || !from || !to) {
+  if (!hash || !confirmed || !result || !amount || !to) {
     return res.status(400).send({
       result: false,
     })
   }
-
   const isUsed = await globalModel.GetOne('tb_payment', {
     'pay_hash=': hash,
   })
-
   if (isUsed) {
     return res.status(409).send({
       msg: 'This hash is used already!',
@@ -211,9 +217,8 @@ router.post('/submit-hash', auth, async function (req, res) {
     })
   }
   const fromUser = await globalModel.GetOne('tb_user', {
-    'user_wallet_address=': from,
+    'user_id=': from_id,
   })
-
   const toUser = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': to,
   })

@@ -93,10 +93,10 @@ exports.up = async function (db, callback) {
         defaultValue: 0,
       },
       user_invited_from: {
-        type: 'string',
+        type: 'int',
         notNull: true,
-        defaultValue: '',
-        length: 255,
+        defaultValue: 0,
+        length: 11,
       },
       user_superior_id: {
         type: 'int',

@@ -45,7 +45,7 @@ router.post('/register', async function (req, res) {
     user_password: md5(user_password),
     user_wallet_address: user_wallet_address ? user_wallet_address : '',
     user_verify_code: verifyCode,
-    user_invited_from: user_invited_from,
+    user_invited_from: inviteUser ? inviteUser.user_id : 0,
     user_superior_id: inviteUser ? inviteUser.user_id : 0,                
     user_expires: moment( (moment().unix() + expireTime)*1000 ).format() ,
   })
