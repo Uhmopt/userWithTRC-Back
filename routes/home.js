@@ -69,24 +69,43 @@ router.post('/update', auth, async function (req, res) {
       result: false,
     })
   }
+  const setting = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'admin_email',
+  })
   const verifyCode = utility.verifyCode()
+  const isWalletExist = await globalModel.GetOne('tb_user', {
+    'user_wallet_address=': user_wallet_address,
+    'user_id<>' : user_id
+  })
+  if (isWalletExist) {
+    return res.status(409).send({
+      msg: 'The user wallet address already exist. Please use your own wallet',
+      result: false,
+    })
+  }
   const updateData = user_password
     ? {
         user_email: user_email,
         user_password: md5(user_password),
         user_wallet_address: user_wallet_address,
         user_is_verified: 0,
-        user_expires: moment().unix() + expireTime,
+        user_expires: moment( (moment().unix() + expireTime)*1000 ).format(),
         user_verify_code: verifyCode,
       }
     : {
         user_email: user_email,
         user_wallet_address: user_wallet_address,
         user_is_verified: 0,
-        user_expires: moment().unix() + expireTime,
+        user_expires: moment( (moment().unix() + expireTime)*1000 ).format(),
         user_verify_code: verifyCode,
       }
   // Email sent part
+  const isSent = await sendMail(
+    setting.set_item_value,
+    user_email,
+    'Please verify your email for update',
+    `<h4>${verifyCode}</h4>`,
+  )
   const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
     'user_id=': user_id,
   })
@@ -119,18 +138,28 @@ router.post('/contact', auth, async function (req, res) {
     contact_text: contact,
     contact_rid: rid,
     contact_verify_code: verifyCode,
-    contact_is_verified: 0,
+    contact_is_verified: 1,
   }
   const setting = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'admin_email',
   })
   // Email Sent Part///////////////////////////
   const isSent = await sendMail(
+    contact.contact_email,
     setting.set_item_value,
-    email,
-    'Please verify your email for sending contact',
-    `<h4>${verifyCode}</h4>`,
+    contact.contact_theme,
+    `<h4>ID:${contact.contact_rid}</h4><br /><h4>${contact.contact_text}</h4>`,
   )
+  // const setting = await globalModel.GetOne('tb_setting', {
+  //   'set_item_name=': 'admin_email',
+  // })
+  // // Email Sent Part///////////////////////////
+  // const isSent = await sendMail(
+  //   setting.set_item_value,
+  //   email,
+  //   'Please verify your email for sending contact',
+  //   `<h4>${verifyCode}</h4>`,
+  // )
   console.log(isSent)
   const insertState = await globalModel.InsertOne('tb_contact', contactData)
   return Boolean(insertState)

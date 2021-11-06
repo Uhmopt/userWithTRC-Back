@@ -37,6 +37,12 @@ router.post('/submit-hash', auth, async function (req, res) {
   })
 
   const toUser = await globalModel.GetOne('tb_user', {
+    'user_id=': fromUser.user_superior_id,
+  })
+
+  console.log('123412341234', toUser.user_id, fromUser.user_id, fromUser.user_superior_id)
+
+  const payUser = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': to,
   })
 
@@ -46,7 +52,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   const insertPayment = await globalModel.InsertOne('tb_payment', {
     pay_hash: hash,
     pay_from: fromUser.user_id,
-    pay_to: toUser.user_id,
+    pay_to: payUser.user_id,
     pay_result: result,
     pay_confirmed: confirmed ? 1 : 0,
     pay_amount: amount,
@@ -61,7 +67,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   ) {
     const updateData = {
       user_level: Number(fromUser.user_level) + 1,
-      user_superior_id: toUser.user_superior_id,
+      user_superior_id: toUser.user_invited_from,
     }
     const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
       'user_id=': fromUser.user_id,
@@ -98,12 +104,11 @@ router.post('/get-amount-address', auth, async function (req, res) {
   // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
-  if (user_superior_id === 0 || user_level >= superior.user_level) {
+  while (user_superior_id === 0 || user_level >= superior.user_level) {
     superior = await globalModel.GetOne('tb_user', {
       'user_id=': setting.set_item_value,
     })
   }
-
   // if (user.user_superior_id === 0 || user.user_level >= superior.user_level) {
   //   superior = await globalModel.GetOne('tb_user', {
   //     'user_id=': levelByDegree.level_user,

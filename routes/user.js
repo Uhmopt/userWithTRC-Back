@@ -28,6 +28,9 @@ router.post('/register', async function (req, res) {
   const isExist = await globalModel.GetOne('tb_user', {
     'user_email=': user_email,
   })
+  const isWalletExist = await globalModel.GetOne('tb_user', {
+    'user_wallet_address=': user_wallet_address,
+  })
 
   const inviteUser = await globalModel.GetOne('tb_user', {
       'user_email=': user_invited_from,
@@ -35,10 +38,18 @@ router.post('/register', async function (req, res) {
 
   if (isExist) {
     return res.status(409).send({
-      msg: 'The user Already Exist. Please Login!',
+      msg: 'The user already exist. Please login!',
       result: false,
     })
   }
+
+  if (isWalletExist) {
+    return res.status(409).send({
+      msg: 'The user wallet address already exist. Please use your own wallet',
+      result: false,
+    })
+  }
+
   const verifyCode = utility.verifyCode()
   const resRegister = await globalModel.InsertOne('tb_user', {
     user_email: user_email,
@@ -48,14 +59,15 @@ router.post('/register', async function (req, res) {
     user_invited_from: inviteUser ? inviteUser.user_id : 0,
     user_superior_id: inviteUser ? inviteUser.user_id : 0,                
     user_expires: moment( (moment().unix() + expireTime)*1000 ).format() ,
+    user_is_verified: 1
   })
   // Email sent part
-  const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': 'admin_email',
-  })
-  // Email Sent
-  const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for Sign up', `<h4>${verifyCode}</h4>`)
-  console.log( isSent, 'Email Sent' )
+  // const setting = await globalModel.GetOne('tb_setting', {
+  //   'set_item_name=': 'admin_email',
+  // })
+  // // Email Sent
+  // const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for Sign up', `<h4>${verifyCode}</h4>`)
+  // console.log( isSent, 'Email Sent' )
 
   if (Boolean(resRegister)) {
     const token = utility.createToken(resRegister.insertId, user_email)
@@ -69,12 +81,13 @@ router.post('/register', async function (req, res) {
           msg: 'The user has been registerd with us!',
           result: {
             user_email: user_email,
-            user_password: md5(user_password),
             user_wallet_address: user_wallet_address ? user_wallet_address : '',
             user_verify_code: verifyCode,
             user_expires: moment( (moment().unix() + expireTime)*1000 ).format() ,
             user_token: token,
             user_rid: resRegister.insertId + unitId,
+            user_is_verified: 1,
+            user_id: resRegister.insertId
           },
         })
       : res.status(500).send({
