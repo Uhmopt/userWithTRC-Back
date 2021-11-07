@@ -40,7 +40,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     'user_id=': fromUser.user_superior_id,
   })
 
-  console.log('123412341234', toUser.user_id, fromUser.user_id, fromUser.user_superior_id)
+  console.log(toUser, fromUser.user_superior_id, 'sssssssssssssss' )
 
   const payUser = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': to,
@@ -67,7 +67,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   ) {
     const updateData = {
       user_level: Number(fromUser.user_level) + 1,
-      user_superior_id: toUser.user_invited_from,
+      user_superior_id: toUser? toUser.user_invited_from : 0,
     }
     const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
       'user_id=': fromUser.user_id,
@@ -94,6 +94,7 @@ router.post('/get-amount-address', auth, async function (req, res) {
   const setting = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'specified_user_id',
   })
+
   const levelByDegree = await globalModel.GetOne('tb_level', {
     'level_degree=': user_level,
   })
@@ -101,19 +102,17 @@ router.post('/get-amount-address', auth, async function (req, res) {
   let superior = await globalModel.GetOne('tb_user', {
     'user_id=': user_superior_id,
   })
+
   // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
-  while (user_superior_id === 0 || user_level >= superior.user_level) {
+  console.log( user_superior_id, 'thiw', !superior , user_level >= superior.user_level, setting.set_item_value )
+
+  while(!superior || user_level >= superior.user_level) {
     superior = await globalModel.GetOne('tb_user', {
-      'user_id=': setting.set_item_value,
+      'user_id=': !superior ? setting.set_item_value : superior.user_invited_from ,
     })
   }
-  // if (user.user_superior_id === 0 || user.user_level >= superior.user_level) {
-  //   superior = await globalModel.GetOne('tb_user', {
-  //     'user_id=': levelByDegree.level_user,
-  //   })
-  // }
   const wallet_address = superior.user_wallet_address
   const amount = levelByDegree.level_amount
 

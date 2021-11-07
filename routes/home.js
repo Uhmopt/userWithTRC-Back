@@ -145,10 +145,10 @@ router.post('/contact', auth, async function (req, res) {
   })
   // Email Sent Part///////////////////////////
   const isSent = await sendMail(
-    contact.contact_email,
+    email,
     setting.set_item_value,
-    contact.contact_theme,
-    `<h4>ID:${contact.contact_rid}</h4><br /><h4>${contact.contact_text}</h4>`,
+    theme,
+    `<h4>ID:${rid}</h4><h4>${contact}</h4>`,
   )
   // const setting = await globalModel.GetOne('tb_setting', {
   //   'set_item_name=': 'admin_email',
@@ -167,7 +167,7 @@ router.post('/contact', auth, async function (req, res) {
         result: {
           contact_id: insertState.insertId,
         },
-        msg: 'Please verify your email!',
+        msg: 'Email sent!',
       })
     : res.status(500).send({
         result: false,

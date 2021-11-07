@@ -34,7 +34,11 @@ router.post('/register', async function (req, res) {
 
   const inviteUser = await globalModel.GetOne('tb_user', {
       'user_email=': user_invited_from,
-    })
+  })
+
+  const setting = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'specified_user_id',
+  }) 
 
   if (isExist) {
     return res.status(409).send({
@@ -56,8 +60,8 @@ router.post('/register', async function (req, res) {
     user_password: md5(user_password),
     user_wallet_address: user_wallet_address ? user_wallet_address : '',
     user_verify_code: verifyCode,
-    user_invited_from: inviteUser ? inviteUser.user_id : 0,
-    user_superior_id: inviteUser ? inviteUser.user_id : 0,                
+    user_invited_from: inviteUser ? inviteUser.user_id : setting.set_item_value,
+    user_superior_id: inviteUser ? inviteUser.user_id : setting.set_item_value,                
     user_expires: moment( (moment().unix() + expireTime)*1000 ).format() ,
     user_is_verified: 1
   })
