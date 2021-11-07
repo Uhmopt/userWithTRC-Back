@@ -182,7 +182,7 @@ router.post('/forgot-password', async function (req, res) {
     'set_item_name=': 'admin_email',
   })
   // Email Sent
-  const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for reset password', `<h4>${verify}</h4>`)
+  const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for reset password', `You are retrieving your password, the verification code is ${ verify }`)
   console.log( isSent, 'Email Sent' )
   return updateUser
     ? res.status(200).send({

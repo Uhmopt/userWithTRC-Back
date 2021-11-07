@@ -14,7 +14,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     to,
     symbol,
     timestamp,
-    from_user_id
+    from_user_id,
   } = req.body
   if (!hash || !confirmed || !result || !amount || !from || !to) {
     return res.status(400).send({
@@ -40,7 +40,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     'user_id=': fromUser.user_superior_id,
   })
 
-  console.log(toUser, fromUser.user_superior_id, 'sssssssssssssss' )
+  console.log(toUser, fromUser.user_superior_id, 'sssssssssssssss')
 
   const payUser = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': to,
@@ -67,7 +67,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   ) {
     const updateData = {
       user_level: Number(fromUser.user_level) + 1,
-      user_superior_id: toUser? toUser.user_invited_from : 0,
+      user_superior_id: toUser ? toUser.user_invited_from : 0,
     }
     const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
       'user_id=': fromUser.user_id,
@@ -82,8 +82,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     })
   }
   return res.status(409).send({
-    msg:
-      'User-level upgrade failed. Please confirm your USDT transfer.',
+    msg: 'User-level upgrade failed. Please confirm your USDT transfer.',
     result: false,
   })
 })
@@ -106,13 +105,27 @@ router.post('/get-amount-address', auth, async function (req, res) {
   // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
-  console.log( user_superior_id, 'thiw', !superior , user_level >= superior.user_level, setting.set_item_value )
+  console.log(
+    user_superior_id,
+    'thiw',
+    !superior,
+    user_level >= superior.user_level,
+    setting.set_item_value,
+  )
+  console.log( !superior || user_level >= superior.user_level ,setting.set_item_value !== superior.user_id )
+  while (
+    (!superior || user_level >= superior.user_level) &&
+    setting.set_item_value !== superior.user_id
 
-  while(!superior || user_level >= superior.user_level) {
+  ) {
     superior = await globalModel.GetOne('tb_user', {
-      'user_id=': !superior ? setting.set_item_value : superior.user_invited_from ,
+      'user_id=': !superior
+        ? setting.set_item_value
+        : superior.user_invited_from,
     })
   }
+
+  console.log(superior, 'ssssssssss')
   const wallet_address = superior.user_wallet_address
   const amount = levelByDegree.level_amount
 

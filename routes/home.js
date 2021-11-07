@@ -104,7 +104,7 @@ router.post('/update', auth, async function (req, res) {
     setting.set_item_value,
     user_email,
     'Please verify your email for update',
-    `<h4>${verifyCode}</h4>`,
+    `You are changing your information, the verification code is ${ verifyCode }`,
   )
   const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
     'user_id=': user_id,
