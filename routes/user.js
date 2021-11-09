@@ -37,7 +37,7 @@ router.post('/register', async function (req, res) {
   })
 
   const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': 'specified_user_id',
+    'set_item_name=': 'set_specified_user',
   }) 
 
   if (isExist) {
@@ -67,7 +67,7 @@ router.post('/register', async function (req, res) {
   })
   // Email sent part
   // const setting = await globalModel.GetOne('tb_setting', {
-  //   'set_item_name=': 'admin_email',
+  //   'set_item_name=': 'set_admin_email',
   // })
   // // Email Sent
   // const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for Sign up', `<h4>${verifyCode}</h4>`)
@@ -179,7 +179,7 @@ router.post('/forgot-password', async function (req, res) {
     { 'user_email=': user_email },
   )
   const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': 'admin_email',
+    'set_item_name=': 'set_admin_email',
   })
   // Email Sent
   const isSent = await sendMail( setting.set_item_value, user_email, 'Please verify your email for reset password', `You are retrieving your password, the verification code is ${ verify }`)

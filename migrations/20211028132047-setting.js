@@ -42,9 +42,9 @@ exports.up = async function (db, callback) {
       return callback()
     },
   )
-  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['specified_user_id', '0'], callback)
-  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['register_allowed', '1'], callback)
-  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['admin_email', 'user_upgrade@gmail.com'], callback)
+  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['set_specified_user', '0'], callback)
+  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['set_allow_register', '1'], callback)
+  db.insert('tb_setting', ['set_item_name', 'set_item_value'], ['set_admin_email', 'user_upgrade@gmail.com'], callback)
 }
 
 exports.down = async function (db, callback) {

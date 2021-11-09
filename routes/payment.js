@@ -91,7 +91,7 @@ router.post('/get-amount-address', auth, async function (req, res) {
   const { user_level, user_superior_id } = req.body
 
   const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': 'specified_user_id',
+    'set_item_name=': 'set_specified_user',
   })
 
   const levelByDegree = await globalModel.GetOne('tb_level', {
@@ -105,17 +105,9 @@ router.post('/get-amount-address', auth, async function (req, res) {
   // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
-  console.log(
-    user_superior_id,
-    'thiw',
-    !superior,
-    user_level >= superior.user_level,
-    setting.set_item_value,
-  )
-  console.log( !superior || user_level >= superior.user_level ,setting.set_item_value !== superior.user_id )
   while (
     (!superior || user_level >= superior.user_level) &&
-    setting.set_item_value !== superior.user_id
+    Number(setting.set_item_value) !== Number(superior.user_id)
 
   ) {
     superior = await globalModel.GetOne('tb_user', {

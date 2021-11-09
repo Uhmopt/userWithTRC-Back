@@ -70,7 +70,7 @@ router.post('/update', auth, async function (req, res) {
     })
   }
   const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': 'admin_email',
+    'set_item_name=': 'set_admin_email',
   })
   const verifyCode = utility.verifyCode()
   const isWalletExist = await globalModel.GetOne('tb_user', {
@@ -141,7 +141,7 @@ router.post('/contact', auth, async function (req, res) {
     contact_is_verified: 1,
   }
   const setting = await globalModel.GetOne('tb_setting', {
-    'set_item_name=': 'admin_email',
+    'set_item_name=': 'set_admin_email',
   })
   // Email Sent Part///////////////////////////
   const isSent = await sendMail(
@@ -151,7 +151,7 @@ router.post('/contact', auth, async function (req, res) {
     `<h4>ID:${rid}</h4><h4>${contact}</h4>`,
   )
   // const setting = await globalModel.GetOne('tb_setting', {
-  //   'set_item_name=': 'admin_email',
+  //   'set_item_name=': 'set_admin_email',
   // })
   // // Email Sent Part///////////////////////////
   // const isSent = await sendMail(
@@ -195,7 +195,7 @@ router.post('/contact-verification', auth, async function (req, res) {
       },
     )
     const setting = await globalModel.GetOne('tb_setting', {
-      'set_item_name=': 'admin_email',
+      'set_item_name=': 'set_admin_email',
     })
     // Email Sent Part///////////////////////////
     const isSent = await sendMail(
