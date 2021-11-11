@@ -62,6 +62,20 @@ router.post('/get-payments', auth, async function (req, res) {
       })
 })
 
+router.post('/get-all-payments', auth, async function (req, res) {
+  const { user_id } = req.body
+  const query = `SELECT * FROM tb_payment WHERE pay_confirmed = 1 ORDER BY pay_time`
+  const paymentList = await globalModel.GetByQuery(query)
+
+  return paymentList
+    ? res.status(200).send({
+        result: paymentList,
+      })
+    : res.status(500).send({
+        result: false,
+      })
+})
+
 router.post('/update', auth, async function (req, res) {
   const { user_id, user_email, user_password, user_wallet_address } = req.body
   if (!user_id || !user_email || !user_wallet_address) {

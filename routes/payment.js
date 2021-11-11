@@ -56,7 +56,8 @@ router.post('/submit-hash', auth, async function (req, res) {
     pay_result: result,
     pay_confirmed: confirmed ? 1 : 0,
     pay_amount: amount,
-    pay_time: moment().format(),
+    pay_time: moment(timestamp*1000).format(),
+    pay_register_time: moment().format(),
   })
   if (
     insertPayment &&
@@ -108,7 +109,6 @@ router.post('/get-amount-address', auth, async function (req, res) {
   while (
     (!superior || user_level >= superior.user_level) &&
     Number(setting.set_item_value) !== Number(superior.user_id)
-
   ) {
     superior = await globalModel.GetOne('tb_user', {
       'user_id=': !superior

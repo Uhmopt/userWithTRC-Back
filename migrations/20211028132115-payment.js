@@ -52,6 +52,12 @@ exports.up = async function(db, callback) {
       },
       pay_time: {
         type: 'timestamp',
+        defaultValue: moment().format(),
+        notNull: true,
+      },     
+      pay_register_time: {
+        type: 'timestamp',
+        defaultValue: moment().format(),
         notNull: true,
       },
       pay_hash: {

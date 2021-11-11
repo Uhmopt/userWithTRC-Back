@@ -9,7 +9,7 @@ require('dotenv').config()
 var user = require('./routes/user')
 var home = require('./routes/home')
 var payment = require('./routes/payment')
-var setting = require('./routes/setting')
+var admin = require('./routes/admin')
 
 
 var app = express()
@@ -43,7 +43,7 @@ app.use(function (req, res, next) {
 app.use('/app/user', user)
 app.use('/app/home', home)
 app.use('/app/payment', payment)
-app.use('/app/back', setting)
+app.use('/app/back', admin)
 
 app.use(function (req, res, next) {
   next(createError(404))
