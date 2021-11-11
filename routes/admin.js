@@ -1,4 +1,5 @@
 const express = require('express')
+const moment = require('moment')
 const router = express.Router()
 const globalModel = require('../model/global')
 const auth = require('../middleware/auth')
@@ -337,5 +338,90 @@ router.post('/user-payments', auth, async function (req, res) {
     result: paymentList || [],
     msg: 'Get data sucessfully!',
   })
+})
+router.post('/get-payment-history', auth, async function (req, res) {
+
+  const paymentList = await globalModel.GetByQuery(
+    `select AA.*, BB.user_rid as upper_id, BB.user_wallet_address as upper_wallet, CC.user_rid, CC.user_level from tb_payment as AA LEFT JOIN tb_user AS BB ON AA.pay_to = BB.user_id LEFT JOIN tb_user as CC ON AA.pay_from = CC.user_id ORDER BY AA.pay_time`,
+  )
+
+  return res.status(200).send({
+    result: paymentList || [],
+    msg: 'Get data sucessfully!',
+  })
+})
+router.post('/delete-payment', auth, async function (req, res) {
+  const { pay_id, admin_id } = req.body
+  console.log( pay_id, admin_id )
+  if (!Boolean(pay_id && admin_id)) {
+    return res.status(400).send({
+      msg: 'Please select payment correctly!',
+      result: false,
+    })
+  }
+  const admin = await globalModel.GetOne('tb_user', {
+    'user_id=': admin_id,
+  })
+  if (admin.user_role === 3) {
+    const payment = await globalModel.DeleteOne(
+      'tb_payment',
+      {
+        'pay_id=': pay_id,
+      },
+    )
+    return res.status(200).send({
+      result: true,
+      msg: 'Deleted sucessfully!',
+    })
+  } else {
+    return res.status(409).send({
+      result: false,
+      msg: 'Your access is not allowed!',
+    })
+  }
+})
+router.post('/approve-payment', auth, async function (req, res) {
+  const { pay_id, admin_id } = req.body
+  console.log( pay_id, admin_id )
+  if (!Boolean(pay_id && admin_id)) {
+    return res.status(400).send({
+      msg: 'Please select payment correctly!',
+      result: false,
+    })
+  }
+  const admin = await globalModel.GetOne('tb_user', {
+    'user_id=': admin_id,
+  })
+  if (admin.user_role === 3) {
+    const update = await globalModel.UpdateOne(
+      'tb_payment',
+      {
+        pay_upgrade_state: 1,
+        pay_upgrade_time: moment().format()
+      },
+      {
+        'pay_id=': pay_id,
+      },
+    )
+    const payment = await globalModel.GetOne('tb_payment', { 'pay_id=': pay_id })
+    const fromUser = await globalModel.GetOne('tb_user', { 'user_id=': payment.pay_from })
+    const toUser = await globalModel.GetOne('tb_user', { 'user_id=': fromUser.user_superior_id })
+    const updateData = {
+      user_level: Number(fromUser.user_level) + 1,
+      user_superior_id: toUser ? toUser.user_invited_from : 0,
+    }
+    const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
+      'user_id=': fromUser.user_id,
+    })
+    return res.status(200).send({
+      result: true,
+      msg: 'Approved sucessfully!',
+    })
+  } else {
+    return res.status(409).send({
+      result: false,
+      msg: 'Your access is not allowed!',
+    })
+  }
 })
 module.exports = router

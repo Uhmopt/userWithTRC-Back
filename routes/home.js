@@ -89,7 +89,7 @@ router.post('/update', auth, async function (req, res) {
   const verifyCode = utility.verifyCode()
   const isWalletExist = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': user_wallet_address,
-    'user_id<>' : user_id
+    'user_id<>': user_id,
   })
   if (isWalletExist) {
     return res.status(409).send({
@@ -103,22 +103,30 @@ router.post('/update', auth, async function (req, res) {
         user_password: md5(user_password),
         user_wallet_address: user_wallet_address,
         user_is_verified: 0,
-        user_expires: moment( (moment().unix() + expireTime)*1000 ).format(),
+        user_expires: moment((moment().unix() + expireTime) * 1000).format(),
         user_verify_code: verifyCode,
       }
     : {
         user_email: user_email,
         user_wallet_address: user_wallet_address,
         user_is_verified: 0,
-        user_expires: moment( (moment().unix() + expireTime)*1000 ).format(),
+        user_expires: moment((moment().unix() + expireTime) * 1000).format(),
         user_verify_code: verifyCode,
       }
+  const smtpUser = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_smtp_user',
+  })
+  const smtpPass = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_smtp_pass',
+  })
   // Email sent part
   const isSent = await sendMail(
     setting.set_item_value,
     user_email,
     'Please verify your email for update',
-    `You are changing your information, the verification code is ${ verifyCode }`,
+    `You are changing your information, the verification code is ${verifyCode}`,
+    smtpUser.set_item_value,
+    smtpPass.set_item_value,
   )
   const updateUser = await globalModel.UpdateOne('tb_user', updateData, {
     'user_id=': user_id,
@@ -157,12 +165,20 @@ router.post('/contact', auth, async function (req, res) {
   const setting = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_admin_email',
   })
+  const smtpUser =  await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_smtp_user',
+  })
+  const smtpPass =  await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_smtp_pass',
+  })
   // Email Sent Part///////////////////////////
   const isSent = await sendMail(
     email,
     setting.set_item_value,
     theme,
     `<h4>ID:${rid}</h4><h4>${contact}</h4>`,
+    smtpUser.set_item_value,
+    smtpPass.set_item_value,
   )
   // const setting = await globalModel.GetOne('tb_setting', {
   //   'set_item_name=': 'set_admin_email',
@@ -211,12 +227,20 @@ router.post('/contact-verification', auth, async function (req, res) {
     const setting = await globalModel.GetOne('tb_setting', {
       'set_item_name=': 'set_admin_email',
     })
+    const smtpUser =  await globalModel.GetOne('tb_setting', {
+      'set_item_name=': 'set_smtp_user',
+    })
+    const smtpPass =  await globalModel.GetOne('tb_setting', {
+      'set_item_name=': 'set_smtp_pass',
+    })
     // Email Sent Part///////////////////////////
     const isSent = await sendMail(
       contact.contact_email,
       setting.set_item_value,
       contact.contact_theme,
       `<h4>ID:${contact.contact_rid}</h4><br /><h4>${contact.contact_text}</h4>`,
+      smtpUser.set_item_value,
+      smtpPass.set_item_value,
     )
     return contact
       ? res.status(200).send({

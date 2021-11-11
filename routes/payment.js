@@ -25,7 +25,6 @@ router.post('/submit-hash', auth, async function (req, res) {
   const isUsed = await globalModel.GetOne('tb_payment', {
     'pay_hash=': hash,
   })
-
   if (isUsed) {
     return res.status(409).send({
       msg: 'This hash is used already!',
@@ -36,36 +35,44 @@ router.post('/submit-hash', auth, async function (req, res) {
     'user_id=': from_user_id,
   })
 
+  const isUpgrade = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_allow_upgrade',
+  })
+  if (isUpgrade?.set_item_value !== '1' || fromUser?.user_allow_upgrade !== 1 ) {
+    return res.status(409).send({
+      result: false,
+      msg: 'Upgrade is not allowed.Please try it later'
+    })
+  }
   const toUser = await globalModel.GetOne('tb_user', {
     'user_id=': fromUser.user_superior_id,
   })
-
-  console.log(toUser, fromUser.user_superior_id, 'sssssssssssssss')
 
   const payUser = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': to,
   })
 
   const level = await globalModel.GetOne('tb_level', {
-    'level_degree=': fromUser.user_level,
+    'level_degree=': fromUser.user_level + 1,
   })
-  const insertPayment = await globalModel.InsertOne('tb_payment', {
-    pay_hash: hash,
-    pay_from: fromUser.user_id,
-    pay_to: payUser.user_id,
-    pay_result: result,
-    pay_confirmed: confirmed ? 1 : 0,
-    pay_amount: amount,
-    pay_time: moment(timestamp*1000).format(),
-    pay_register_time: moment().format(),
-  })
+
   if (
-    insertPayment &&
     confirmed &&
     result === 'SUCCESS' &&
     symbol === 'USDT' &&
     amount === Number(level.level_amount) + Number(fromUser.user_rid)
   ) {
+    const insertPayment = await globalModel.InsertOne('tb_payment', {
+      pay_hash: hash,
+      pay_from: fromUser.user_id,
+      pay_to: payUser.user_id,
+      pay_result: result,
+      pay_confirmed: confirmed ? 1 : 0,
+      pay_amount: amount,
+      pay_time: moment().format(),
+      pay_upgrade_time: moment().format(),
+      pay_upgrade_state: 1,
+    })
     const updateData = {
       user_level: Number(fromUser.user_level) + 1,
       user_superior_id: toUser ? toUser.user_invited_from : 0,
@@ -81,28 +88,38 @@ router.post('/submit-hash', auth, async function (req, res) {
         ...updateData,
       },
     })
+  } else {
+    const insertPayment = await globalModel.InsertOne('tb_payment', {
+      pay_hash: hash,
+      pay_from: fromUser.user_id,
+      pay_to: payUser.user_id,
+      pay_result: result,
+      pay_confirmed: confirmed ? 1 : 0,
+      pay_amount: amount,
+      pay_time: moment().format(),
+    })
+    return insertPayment? res.status(409).send({
+      msg: 'Please wait until your upgrade is approved',
+      result: true,
+    }):res.status(409).send({
+      msg: 'User-level upgrade failed. Please confirm your USDT transfer.',
+      result: false,
+    })
   }
-  return res.status(409).send({
-    msg: 'User-level upgrade failed. Please confirm your USDT transfer.',
-    result: false,
-  })
 })
 
 router.post('/get-amount-address', auth, async function (req, res) {
   const { user_level, user_superior_id } = req.body
-
   const setting = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_specified_user',
   })
-
   const levelByDegree = await globalModel.GetOne('tb_level', {
-    'level_degree=': user_level,
+    'level_degree=': user_level + 1,
   })
-
+  console.log( levelByDegree, 'HER' )
   let superior = await globalModel.GetOne('tb_user', {
     'user_id=': user_superior_id,
   })
-
   // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
@@ -116,11 +133,8 @@ router.post('/get-amount-address', auth, async function (req, res) {
         : superior.user_invited_from,
     })
   }
-
-  console.log(superior, 'ssssssssss')
   const wallet_address = superior.user_wallet_address
   const amount = levelByDegree.level_amount
-
   return res.status(200).send({
     result: {
       superior_wallet_address: wallet_address,

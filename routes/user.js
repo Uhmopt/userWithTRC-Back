@@ -40,6 +40,17 @@ router.post('/register', async function (req, res) {
     'set_item_name=': 'set_specified_user',
   })
 
+  const isRegisterAllowed = await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_allow_register',
+  })
+
+  if(isRegisterAllowed !== '1') {
+    return res.status(409).send({
+      msg: 'User Register is not allowed.Please ask to manager.',
+      result: false,
+    })
+  }
+
   if (isExist) {
     return res.status(409).send({
       msg: 'The user already exist. Please login!',
@@ -203,12 +214,20 @@ router.post('/forgot-password', async function (req, res) {
   const setting = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_admin_email',
   })
+  const smtpUser =  await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_smtp_user',
+  })
+  const smtpPass =  await globalModel.GetOne('tb_setting', {
+    'set_item_name=': 'set_smtp_pass',
+  })
   // Email Sent
   const isSent = await sendMail(
     setting.set_item_value,
     user_email,
     'Please verify your email for reset password',
     `You are retrieving your password, the verification code is ${verify}`,
+    smtpUser.set_item_value,
+    smtpPass.set_item_value,
   )
   console.log(isSent, 'Email Sent')
   return updateUser
