@@ -74,6 +74,7 @@ router.post('/update-setting', auth, async function (req, res) {
       { set_item_value: isUpgrade },
       { 'set_item_name=': 'set_allow_upgrade' },
     )
+    await globalModel.UpdateOne('tb_user', {user_superior_id: 0}, { 'user_id=': specifiedUser } );
     return res.status(200).send({
       result: true,
       msg: 'Setting is saved sucessflly!',
@@ -346,8 +347,7 @@ router.post('/get-admins', auth, async function (req, res) {
     })
   }
   const users = await globalModel.Getlist('tb_user', {
-    'user_role=': 3,
-    'user_del=': 0
+    'user_role=': 3
   })
   return users
     ? res.status(200).send({
@@ -370,9 +370,8 @@ router.post('/delete-user', auth, async function (req, res) {
     'user_id=': admin_id,
   })
   if (admin.user_role === 3) {
-    const user = await globalModel.UpdateOne(
+    const user = await globalModel.DeleteOne(
       'tb_user',
-      { user_del: 1 },
       {
         'user_id=': user_id,
       },

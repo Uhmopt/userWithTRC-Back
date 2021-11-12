@@ -23,7 +23,7 @@ router.post('/get-user', auth, async function (req, res) {
 })
 
 router.post('/get-levels', auth, async function (req, res) {
-  const userLevels = await globalModel.Getlist('tb_level')
+  let userLevels = await globalModel.Getlist('tb_level')
   return userLevels
     ? res.status(200).send({
         result: userLevels,
@@ -165,10 +165,10 @@ router.post('/contact', auth, async function (req, res) {
   const setting = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_admin_email',
   })
-  const smtpUser =  await globalModel.GetOne('tb_setting', {
+  const smtpUser = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_smtp_user',
   })
-  const smtpPass =  await globalModel.GetOne('tb_setting', {
+  const smtpPass = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_smtp_pass',
   })
   // Email Sent Part///////////////////////////
@@ -227,10 +227,10 @@ router.post('/contact-verification', auth, async function (req, res) {
     const setting = await globalModel.GetOne('tb_setting', {
       'set_item_name=': 'set_admin_email',
     })
-    const smtpUser =  await globalModel.GetOne('tb_setting', {
+    const smtpUser = await globalModel.GetOne('tb_setting', {
       'set_item_name=': 'set_smtp_user',
     })
-    const smtpPass =  await globalModel.GetOne('tb_setting', {
+    const smtpPass = await globalModel.GetOne('tb_setting', {
       'set_item_name=': 'set_smtp_pass',
     })
     // Email Sent Part///////////////////////////

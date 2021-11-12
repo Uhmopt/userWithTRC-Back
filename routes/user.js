@@ -44,7 +44,7 @@ router.post('/register', async function (req, res) {
     'set_item_name=': 'set_allow_register',
   })
 
-  if(isRegisterAllowed !== '1') {
+  if(isRegisterAllowed.set_item_value !== '1') {
     return res.status(409).send({
       msg: 'User Register is not allowed.Please ask to manager.',
       result: false,

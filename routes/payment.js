@@ -123,6 +123,7 @@ router.post('/get-amount-address', auth, async function (req, res) {
   // Note: If there is no superior id
   // or user level is over the superior level
   // then set superior as specified user who admin setted
+  console.log( superior, 'Superior' )
   while (
     (!superior || user_level >= superior.user_level) &&
     Number(setting.set_item_value) !== Number(superior.user_id)
