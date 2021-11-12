@@ -38,7 +38,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   const isUpgrade = await globalModel.GetOne('tb_setting', {
     'set_item_name=': 'set_allow_upgrade',
   })
-  if (isUpgrade?.set_item_value !== '1' || fromUser?.user_allow_upgrade !== 1 ) {
+  if (isUpgrade.set_item_value !== '1' || fromUser.user_allow_upgrade !== 1 ) {
     return res.status(409).send({
       result: false,
       msg: 'Upgrade is not allowed.Please try it later'

@@ -4,6 +4,7 @@ const router = express.Router()
 const globalModel = require('../model/global')
 const auth = require('../middleware/auth')
 const { UpdateOne } = require('../model/global')
+const md5 = require('md5')
 
 router.post('/get-setting', auth, async function (req, res) {
   const setting = await globalModel.Getlist('tb_setting')
@@ -191,6 +192,53 @@ router.post('/update-user', auth, async function (req, res) {
     })
   }
 })
+router.post('/update-admin', auth, async function (req, res) {
+  const {
+    admin_id,
+    user_id,
+    user_email,
+    user_password,
+  } = req.body
+  if (
+    !Boolean(
+      admin_id && user_id && user_email && user_password,
+    )
+  ) {
+    return res.status(400).send({
+      msg: 'Please enter the information correctly!',
+      result: false,
+    })
+  }
+  const admin = await globalModel.GetOne('tb_user', {
+    'user_id=': admin_id,
+  })
+  const update = {
+    user_email: user_email,
+    user_password: md5(user_password),
+  }
+  if (admin.user_role === 3) {
+    const isEmailExist = await globalModel.GetOne('tb_user', {
+      'user_email=': user_email,
+      'user_id<>': user_id,
+    })
+    if (isEmailExist) {
+      return res.status(409).send({
+        msg: 'The user Email already exist. Please try again',
+        result: false,
+      })
+    }
+    const admin = await UpdateOne('tb_user', update, { 'user_id=': user_id })
+    res.status(200).send({
+      result: true,
+      msg: 'Saved sucessfully!',
+    })
+  } else {
+    return res.status(409).send({
+      result: false,
+      msg: 'Your access is not allowed!',
+    })
+  }
+})
 router.post('/insert-user', auth, async function (req, res) {
   const {
     user_id,
@@ -283,6 +331,27 @@ router.post('/get-user', auth, async function (req, res) {
   return user
     ? res.status(200).send({
         result: user,
+      })
+    : res.status(409).send({
+        result: false,
+        msg: 'Your access is not allowed!',
+      })
+})
+router.post('/get-admins', auth, async function (req, res) {
+  const { admin_id } = req.body
+  if (!Boolean(admin_id)) {
+    return res.status(400).send({
+      msg: '',
+      result: false,
+    })
+  }
+  const users = await globalModel.Getlist('tb_user', {
+    'user_role=': 3,
+    'user_del=': 0
+  })
+  return users
+    ? res.status(200).send({
+        result: users,
       })
     : res.status(409).send({
         result: false,

@@ -136,7 +136,7 @@ router.post('/login', async function (req, res) {
 
   if (user) {
     // Note Check the app login allowed
-    if (Number(setting?.set_item_value) === 0 && user.user_role === 0) {
+    if (Number(setting.set_item_value) === 0 && user.user_role === 0) {
       return res.status(409).send({
         msg: 'Login is not allowed. Please ask to manager',
         result: false,
