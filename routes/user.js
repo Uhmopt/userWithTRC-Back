@@ -21,7 +21,7 @@ router.post('/register', async function (req, res) {
   } = req.body
   if (!user_email || !user_password) {
     return res.status(400).send({
-      msg: 'User password and email required!',
+      msg: 'emailPassRequired',
       result: false,
     })
   }
@@ -46,21 +46,21 @@ router.post('/register', async function (req, res) {
 
   if(isRegisterAllowed.set_item_value !== '1') {
     return res.status(409).send({
-      msg: 'User Register is not allowed.Please ask to manager.',
+      msg: 'registerNotAllowed',
       result: false,
     })
   }
 
   if (isExist) {
     return res.status(409).send({
-      msg: 'The user already exist. Please login!',
+      msg: 'userExist',
       result: false,
     })
   }
 
   if (isWalletExist) {
     return res.status(409).send({
-      msg: 'The user wallet address already exist. Please use your own wallet',
+      msg: 'walletExist',
       result: false,
     })
   }
@@ -93,7 +93,7 @@ router.post('/register', async function (req, res) {
     )
     return updateUser
       ? res.status(200).send({
-          msg: 'The user has been registerd with us!',
+          msg: 'successRegister',
           result: {
             user_email: user_email,
             user_wallet_address: user_wallet_address ? user_wallet_address : '',
@@ -108,12 +108,12 @@ router.post('/register', async function (req, res) {
           },
         })
       : res.status(500).send({
-          msg: 'The user register failed!',
+          msg: 'failedRegister',
           result: false,
         })
   }
   return res.status(500).send({
-    msg: 'The user register failed!',
+    msg: 'failedRegister',
     result: false,
   })
 })
@@ -122,7 +122,7 @@ router.post('/login', async function (req, res) {
   const { user_email, user_password, isRemember } = req.body
   if (!user_email || !user_password) {
     return res.status(400).send({
-      msg: 'User password and email required!',
+      msg: 'emailPassRequired',
       result: false,
     })
   }
@@ -138,20 +138,20 @@ router.post('/login', async function (req, res) {
     // Note Check the app login allowed
     if (Number(setting.set_item_value) === 0 && user.user_role === 0) {
       return res.status(409).send({
-        msg: 'Login is not allowed. Please ask to manager',
+        msg: 'loginNotAllowed',
         result: false,
       })
     }
     // Note Check the user login allowed
     if (user.user_allow_login === 0) {
       return res.status(409).send({
-        msg: 'Login is not allowed. Please ask to manager',
+        msg: 'loginNotAllowed',
         result: false,
       })
     }
     if (user.user_is_verified === 0) {
       return res.status(201).send({
-        msg: 'Please verify your email first.',
+        msg: 'verifyEmail',
         isVerifyRequired: true,
         result: {
           user_email: user.user_email,
@@ -167,7 +167,7 @@ router.post('/login', async function (req, res) {
     )
     return updateUser
       ? res.status(200).send({
-          msg: 'Logged in!',
+          msg: 'successLogin',
           result: {
             ...user,
             user_token: token,
@@ -175,12 +175,12 @@ router.post('/login', async function (req, res) {
           },
         })
       : res.status(409).send({
-          msg: 'Username or password is incorrect!',
+          msg: 'emailPassNotCorrect',
           result: false,
         })
   }
   return res.status(409).send({
-    msg: 'Username or password is incorrect!',
+    msg: 'emailPassNotCorrect',
     result: false,
   })
 })
@@ -189,7 +189,7 @@ router.post('/forgot-password', async function (req, res) {
   const { user_email } = req.body
   if (!user_email) {
     return res.status(400).send({
-      msg: 'Email is required!',
+      msg: 'emailRequired',
       result: false,
     })
   }
@@ -198,7 +198,7 @@ router.post('/forgot-password', async function (req, res) {
   })
   if (!user) {
     return res.status(409).send({
-      msg: 'Email is not existed!',
+      msg: 'emailNotExist',
       result: false,
     })
   }
@@ -229,14 +229,13 @@ router.post('/forgot-password', async function (req, res) {
     smtpUser.set_item_value,
     smtpPass.set_item_value,
   )
-  console.log(isSent, 'Email Sent')
   return updateUser
     ? res.status(200).send({
-        msg: 'Email is sent',
+        msg: 'emailSent',
         result: { user_email: user_email },
       })
     : res.status(500).send({
-        msg: 'Something went wrong!',
+        msg: 'wrong',
         result: false,
       })
 })
@@ -246,7 +245,7 @@ router.post('/verification', async function (req, res) {
   console.log(user_verify_code, user_email)
   if (!user_verify_code) {
     return res.status(400).send({
-      msg: 'Verification code is required!',
+      msg: 'verifyCodeRequired',
       result: false,
     })
   }
@@ -256,7 +255,7 @@ router.post('/verification', async function (req, res) {
   })
   if (moment(user.user_expires).unix() < moment().unix()) {
     return res.status(500).send({
-      msg: 'Expire time is over. Please try again!',
+      msg: 'expireTimeOver',
       result: false,
     })
   }
@@ -281,7 +280,7 @@ router.post('/verification', async function (req, res) {
     })
     return updateUser
       ? res.status(200).send({
-          msg: 'Your email verified successfully',
+          msg: 'emailVerifySuccess',
           result: {
             ...user,
             user_verify_code: user_verify_code,
@@ -290,12 +289,12 @@ router.post('/verification', async function (req, res) {
           },
         })
       : res.status(409).send({
-          msg: 'Something went wrong!',
+          msg: 'wrong',
           result: false,
         })
   }
   res.status(409).send({
-    msg: 'The verification code is not matched!',
+    msg: 'verifyCodeNotMatch',
     result: false,
   })
 })
@@ -304,7 +303,7 @@ router.post('/reset-password', async function (req, res) {
   const { user_email, user_password, user_verify_code } = req.body
   if (!user_password) {
     return res.status(400).send({
-      msg: 'Password is required!',
+      msg: 'passRequired',
       result: false,
     })
   }
@@ -321,19 +320,19 @@ router.post('/reset-password', async function (req, res) {
     )
     return resetPassword
       ? res.status(200).send({
-          msg: 'Password is reseted!',
+          msg: 'passReseted',
           result: {
             ...user,
             user_token: token,
           },
         })
       : res.status(409).send({
-          msg: 'Something went wrong!',
+          msg: 'wrong',
           result: false,
         })
   }
   res.status(409).send({
-    msg: 'Please verify email first!',
+    msg: 'verifyEmail',
     result: false,
   })
 })

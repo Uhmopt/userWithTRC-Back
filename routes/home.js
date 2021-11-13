@@ -87,13 +87,23 @@ router.post('/update', auth, async function (req, res) {
     'set_item_name=': 'set_admin_email',
   })
   const verifyCode = utility.verifyCode()
+  const isEmailExist = await globalModel.GetOne('tb_user', {
+    'user_email=': user_email,
+    'user_id<>': user_id,
+  })
+  if (isEmailExist) {
+    return res.status(409).send({
+      msg: 'userExist',
+      result: false,
+    })
+  }
   const isWalletExist = await globalModel.GetOne('tb_user', {
     'user_wallet_address=': user_wallet_address,
     'user_id<>': user_id,
   })
   if (isWalletExist) {
     return res.status(409).send({
-      msg: 'The user wallet address already exist. Please use your own wallet',
+      msg: 'walletExist',
       result: false,
     })
   }
@@ -136,6 +146,7 @@ router.post('/update', auth, async function (req, res) {
   })
   return updateUser
     ? res.status(200).send({
+        msg: "verifyEmailForUpdate",
         result: {
           ...user,
         },
@@ -186,7 +197,7 @@ router.post('/contact', auth, async function (req, res) {
         result: {
           contact_id: insertState.insertId,
         },
-        msg: 'Email sent!',
+        msg: 'emailSent',
       })
     : res.status(500).send({
         result: false,
@@ -197,7 +208,7 @@ router.post('/contact-verification', auth, async function (req, res) {
   const { contact_id, contact_verify_code } = req.body
   if (!contact_verify_code) {
     return res.status(400).send({
-      msg: 'Verification code is required!',
+      msg: 'verifyCodeRequired',
       result: false,
     })
   }
@@ -233,16 +244,16 @@ router.post('/contact-verification', auth, async function (req, res) {
     )
     return contact
       ? res.status(200).send({
-          msg: 'Your email sent successfully',
+          msg: 'emailSent',
           result: true,
         })
       : res.status(409).send({
-          msg: 'Something went wrong!',
+          msg: 'wrong',
           result: false,
         })
   }
   res.status(409).send({
-    msg: 'The verification code is not matched!',
+    msg: 'verifyCodeNotMatch',
     result: false,
   })
 })
@@ -268,7 +279,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   })
   if (isUsed) {
     return res.status(409).send({
-      msg: 'This hash is used already!',
+      msg: 'hashUsed',
       result: false,
     })
   }

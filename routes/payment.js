@@ -27,7 +27,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   })
   if (isUsed) {
     return res.status(409).send({
-      msg: 'This hash is used already!',
+      msg: 'hashUsed',
       result: false,
     })
   }
@@ -41,7 +41,7 @@ router.post('/submit-hash', auth, async function (req, res) {
   if (isUpgrade.set_item_value !== '1' || fromUser.user_allow_upgrade !== 1 ) {
     return res.status(409).send({
       result: false,
-      msg: 'Upgrade is not allowed.Please try it later'
+      msg: 'upgradeNotAllowed'
     })
   }
   const toUser = await globalModel.GetOne('tb_user', {
@@ -71,7 +71,9 @@ router.post('/submit-hash', auth, async function (req, res) {
       pay_amount: amount,
       pay_time: moment().format(),
       pay_upgrade_time: moment().format(),
+      pay_level: fromUser.user_level + 1,
       pay_upgrade_state: 1,
+      pay_wallet_address: payUser.user_wallet_address
     })
     const updateData = {
       user_level: Number(fromUser.user_level) + 1,
@@ -82,7 +84,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     })
     console.log('THIS IS THE PAYMENT')
     return res.status(200).send({
-      msg: 'User is upgraded sucessfullly!',
+      msg: 'upgradeSuccess',
       result: {
         ...fromUser,
         ...updateData,
@@ -96,13 +98,15 @@ router.post('/submit-hash', auth, async function (req, res) {
       pay_result: result,
       pay_confirmed: confirmed ? 1 : 0,
       pay_amount: amount,
+      pay_level: fromUser.user_level + 1,
+      pay_wallet_address: payUser.user_wallet_address,
       pay_time: moment().format(),
     })
     return insertPayment? res.status(409).send({
-      msg: 'Please wait until your upgrade is approved',
+      msg: 'waitUpgrade',
       result: true,
     }):res.status(409).send({
-      msg: 'User-level upgrade failed. Please confirm your USDT transfer.',
+      msg: 'wrong',
       result: false,
     })
   }
