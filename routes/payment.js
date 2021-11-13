@@ -82,7 +82,7 @@ router.post('/submit-hash', auth, async function (req, res) {
     })
     console.log('THIS IS THE PAYMENT')
     return res.status(200).send({
-      msg: 'User is upgrade sucessfullly!',
+      msg: 'User is upgraded sucessfullly!',
       result: {
         ...fromUser,
         ...updateData,

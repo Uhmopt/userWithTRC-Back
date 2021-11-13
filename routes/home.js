@@ -180,17 +180,6 @@ router.post('/contact', auth, async function (req, res) {
     smtpUser.set_item_value,
     smtpPass.set_item_value,
   )
-  // const setting = await globalModel.GetOne('tb_setting', {
-  //   'set_item_name=': 'set_admin_email',
-  // })
-  // // Email Sent Part///////////////////////////
-  // const isSent = await sendMail(
-  //   setting.set_item_value,
-  //   email,
-  //   'Please verify your email for sending contact',
-  //   `<h4>${verifyCode}</h4>`,
-  // )
-  console.log(isSent)
   const insertState = await globalModel.InsertOne('tb_contact', contactData)
   return Boolean(insertState)
     ? res.status(200).send({

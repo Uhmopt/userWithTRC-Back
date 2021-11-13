@@ -397,7 +397,7 @@ router.post('/user-payments', auth, async function (req, res) {
   }
 
   const paymentList = await globalModel.GetByQuery(
-    `select * FROM tb_payment LEFT JOIN tb_user on pay_from = user_id WHERE pay_to = ${user_id} AND pay_confirmed = '1'`,
+    `select * FROM tb_payment LEFT JOIN tb_user on pay_to = user_id WHERE pay_to = ${user_id} AND pay_confirmed = '1'`,
   )
 
   console.log(paymentList, 'HERE')
@@ -410,7 +410,7 @@ router.post('/user-payments', auth, async function (req, res) {
 router.post('/get-payment-history', auth, async function (req, res) {
 
   const paymentList = await globalModel.GetByQuery(
-    `select AA.*, BB.user_rid as upper_id, BB.user_wallet_address as upper_wallet, CC.user_rid, CC.user_level from tb_payment as AA LEFT JOIN tb_user AS BB ON AA.pay_to = BB.user_id LEFT JOIN tb_user as CC ON AA.pay_from = CC.user_id ORDER BY AA.pay_time`,
+    `select AA.*, BB.user_rid as upper_id, CC.user_level, BB.user_wallet_address, CC.user_rid, BB.user_level from tb_payment as AA LEFT JOIN tb_user AS BB ON AA.pay_to = BB.user_id LEFT JOIN tb_user as CC ON AA.pay_from = CC.user_id ORDER BY AA.pay_time`,
   )
 
   return res.status(200).send({
